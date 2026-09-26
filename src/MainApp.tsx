@@ -10,13 +10,13 @@ import {loadExampleAssetDetails} from "./anigraph/starter/ExampleAssets";
  * Choose which scene runs by leaving exactly one of these `import AppClasses` lines uncommented.
  * See the "Example Scenes" page of the C1 docs for what each scene shows.
  */
-// import AppClasses from "./Scenes/C1ExampleScenes/StarterScene";
+import AppClasses from "./Scenes/C1ExampleScenes/StarterScene";
 // import AppClasses from "./Scenes/C1ExampleScenes/ShapesAndMaterials";
 // import AppClasses from "./Scenes/C1ExampleScenes/HierarchyAndAnimation";
 // import AppClasses from "./Scenes/C1ExampleScenes/ParticlePlayground2D";
 // import AppClasses from "./Scenes/C1ExampleScenes/CopiesView";
 // import AppClasses from "./Scenes/C1ExampleScenes/MouseInput";
-import AppClasses from "./Scenes/C1ExampleScenes/AttachAndDetach";
+// import AppClasses from "./Scenes/C1ExampleScenes/AttachAndDetach";
 
 export const MainAppConfigs = {
     USE_STRICT_MODE: false
