@@ -1,7 +1,7 @@
 import {ALabel, Color, Mat3} from "../../../../anigraph";
 import {
-    InstancedParticleSystemView2D
-} from "../../../../anigraph/starter/nodes/instancedParticlesSystem/InstancedParticleSystemView2D";
+    AInstancedParticleSystemView2D
+} from "../../../../anigraph/starter/nodes/instancedparticlesystem2d/AInstancedParticleSystemView2D";
 import {PlaygroundParticle} from "./PlaygroundParticle";
 
 /**
@@ -12,7 +12,7 @@ import {PlaygroundParticle} from "./PlaygroundParticle";
  * view's `updateParticles()` runs and copies each particle's current state to the GPU.
  */
 @ALabel("PlaygroundParticleSystemView")
-export class PlaygroundParticleSystemView extends InstancedParticleSystemView2D<PlaygroundParticle>{
+export class PlaygroundParticleSystemView extends AInstancedParticleSystemView2D<PlaygroundParticle>{
 
     /**
      * The transform that places particle i's square: scale the unit square to the particle's size, then move it to

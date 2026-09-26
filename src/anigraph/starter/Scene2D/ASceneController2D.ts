@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "./AppSceneModel2D";
+import {ASceneModel2D} from "./ASceneModel2D";
 import {AGLContext, ARenderContext, Color} from "../../index"
 import {ABasicSceneController, APanZoomInteractionMode2D} from "../index";
 
@@ -14,13 +14,13 @@ import {ABasicSceneController, APanZoomInteractionMode2D} from "../index";
  *
  * The default interaction mode is {@link APanZoomInteractionMode2D} (drag to pan, wheel to zoom).
  */
-export class AppSceneController2D extends ABasicSceneController{
+export class ASceneController2D extends ABasicSceneController{
     /** The keys currently held down, according to the active interaction mode's keyboard interaction. */
     getKeysDownState(){
         return this.interactionMode.getKeyDownState();
     }
-    get model():AppSceneModel2D{
-        return this._model as AppSceneModel2D;
+    get model():ASceneModel2D{
+        return this._model as ASceneModel2D;
     }
 
 

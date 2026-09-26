@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {ANodeModel, Color, V2, Vec2} from "../../../anigraph";
 import {ShapeModel} from "./nodes";
 
@@ -12,7 +12,7 @@ import {ShapeModel} from "./nodes";
  * Which *interaction mode* is active (Edit or Create) is the controller's business: each mode forwards different
  * events to different methods here.
  */
-export class MouseInputSceneModel extends AppSceneModel2D{
+export class MouseInputSceneModel extends ASceneModel2D{
     /** How much a shift-drag rotates a shape, in radians per world unit the cursor moves to the right. */
     static RotationPerUnit = 0.5;
 

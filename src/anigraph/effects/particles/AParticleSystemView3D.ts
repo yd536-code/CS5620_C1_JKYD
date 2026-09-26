@@ -4,7 +4,7 @@ import {AGraphicGroup, AInstancedGraphic} from "../../rendering";
 import {AParticleSystemModel3D} from "./AParticleSystemModel3D";
 import {Color, Mat4} from "../../math";
 import {AInstancedParticleSystemGraphic3D} from "./InstancedParticles";
-import {AParticle} from "../../physics/particles";
+import {BasicParticle} from "../../physics/particles";
 import {ParticleSystemModelInterface} from "./ParticleSystemModelInterface";
 
 /**
@@ -12,7 +12,7 @@ import {ParticleSystemModelInterface} from "./ParticleSystemModelInterface";
  * `createParticlesElement()`, and the view calls `updateParticles()` whenever its model signals `PARTICLES_UPDATED`.
  * @typeParam P The particle type.
  */
-export abstract class AParticleSystemView3D<P extends AParticle<any>> extends AGLNodeView{
+export abstract class AParticleSystemView3D<P extends BasicParticle<any>> extends AGLNodeView{
 
     /** Copies the model's particle data into the particle graphic. Called on each `PARTICLES_UPDATED` event. */
     abstract updateParticles():void;

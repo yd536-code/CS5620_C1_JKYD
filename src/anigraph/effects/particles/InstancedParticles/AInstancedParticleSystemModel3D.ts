@@ -1,6 +1,6 @@
 import {ASerializable} from "../../../base";
 import {AParticleSystemModel3D} from "../AParticleSystemModel3D";
-import {AParticle} from "../../../physics";
+import {BasicParticle} from "../../../physics";
 import {AParticleEnums} from "../../../physics/particles/AParticleEnums";
 import {AShaderModel, ATexture} from "../../../rendering";
 import {
@@ -18,7 +18,7 @@ import {
  * @typeParam P The particle type.
  */
 @ASerializable("AInstancedParticleSystemModel3D")
-export abstract class AInstancedParticleSystemModel3D<P extends AParticle<any>> extends AParticleSystemModel3D<P>{
+export abstract class AInstancedParticleSystemModel3D<P extends BasicParticle<any>> extends AParticleSystemModel3D<P>{
     /** The shader model class that `LoadShaderModel` creates. */
     static ShaderModelClass:(typeof AShaderModel)=AInstancedParticleSystemShaderModel;
     /** The loaded shader model; undefined until `LoadShaderModel` finishes. */

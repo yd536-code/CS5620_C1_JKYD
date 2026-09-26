@@ -1,4 +1,4 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {ADragInteraction, AGroupNodeView, AInteractionEvent, Color} from "../../../anigraph";
 import {PolygonModel2D, PolygonView2D} from "../../../anigraph/starter/nodes/polygon2D";
 import {HierarchyAndAnimationSceneModel} from "./HierarchyAndAnimationSceneModel";
@@ -6,10 +6,10 @@ import {ArmLinkModel, ArmModel, OrbitGroupModel, SpikyStarModel} from "./nodes";
 
 /**
  * The scene controller. It pairs models with views, and turns mouse input into calls on the scene model. The frame
- * loop comes from {@link AppSceneController2D}, which calls the scene model's `timeUpdate(t)` every frame. It doesn't
+ * loop comes from {@link ASceneController2D}, which calls the scene model's `timeUpdate(t)` every frame. It doesn't
  * decide what input means; the models do.
  */
-export class HierarchyAndAnimationSceneController extends AppSceneController2D{
+export class HierarchyAndAnimationSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
     get model(): HierarchyAndAnimationSceneModel{
         return this._model as HierarchyAndAnimationSceneModel;
@@ -24,8 +24,9 @@ export class HierarchyAndAnimationSceneController extends AppSceneController2D{
     }
 
     /**
-     * Pairs each model class with the view class that draws it. Specs match a model's exact class, so every model
-     * class needs its own entry, even subclasses of classes that already have one.
+     * Pairs each model class with the view class that draws it. A spec doesn't apply to a subclass that has its own
+     * `@ASerializable` label, so every labeled model class needs its own entry, even subclasses of classes that
+     * already have one.
      */
     initModelViewSpecs(){
         super.initModelViewSpecs();

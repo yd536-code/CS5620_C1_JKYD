@@ -1,7 +1,7 @@
 //##################//--node transform possible parent class--\\##################
 // <editor-fold desc="node transform possibel parent class">
 import {Mat4, Matrix, Quaternion, Vec3, VectorBase} from "../linalg";
-import { TransformationInterface} from "../TrasnformationInterface";
+import { TransformationInterface} from "../TransformationInterface";
 import * as THREE from "three";
 
 /**

@@ -10,7 +10,7 @@ import {AGroupNodeView} from "../nodeView/AGroupNodeView";
 import {AGroupNodeModel2D} from "../nodeModel/AGroupNodeModel2D";
 import {AGroupNodeModel3D} from "../nodeModel/AGroupNodeModel3D";
 import {AMeshModel2D} from "../nodes/2d/mesh2d/AMeshModel2D";
-import {A2DMeshView} from "../nodes/2d/mesh2d/A2DMeshView";
+import {AMeshView2D} from "../nodes/2d/mesh2d/AMeshView2D";
 import {AMeshModel3D} from "../nodes/trianglemesh/AMeshModel3D";
 import {ATriangleMeshView} from "../nodes/trianglemesh/ATriangleMeshView";
 import {AMaterial} from "../../rendering/material";
@@ -134,7 +134,7 @@ describe("mesh views keep their distinct vertex-update policies", () => {
     test("2D mesh view: a transform change does not re-send vertices, a geometry update does", () => {
         const model = new AMeshModel2D();
         model.setMaterial(makeMaterial());
-        const view = A2DMeshView.Create(model);
+        const view = AMeshView2D.Create(model);
         const setVerts2D = jest.spyOn(view.meshGraphic, "setVerts2D");
 
         model.setTransform(Mat3.Translation2D(V2(1, 1)));
@@ -148,7 +148,7 @@ describe("mesh views keep their distinct vertex-update policies", () => {
         const model = new AMeshModel2D();
         model.setMaterial(makeMaterial());
         model.zValue = 0.25;
-        const view = A2DMeshView.Create(model);
+        const view = AMeshView2D.Create(model);
         const t = Mat3.Translation2D(V2(5, -2));
         model.setTransform(t);
         expectSame(view.threejs.matrix.elements.slice(), embedded2D(t, 0.25));
@@ -167,7 +167,7 @@ describe("mesh views keep their distinct vertex-update policies", () => {
     test("Create returns the class it was called on", () => {
         const model = new AMeshModel2D();
         model.setMaterial(makeMaterial());
-        expect(A2DMeshView.Create(model)).toBeInstanceOf(A2DMeshView);
+        expect(AMeshView2D.Create(model)).toBeInstanceOf(AMeshView2D);
     });
 });
 

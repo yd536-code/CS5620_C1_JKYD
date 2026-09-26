@@ -1,8 +1,8 @@
-import {AppSceneModel2D} from "../App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../Scene2D/ASceneModel2D";
 import {ASerializable} from "../../base";
 
 /**
- * Base class for the scene model of a Two.js 2D scene. It is an {@link AppSceneModel2D} (same lifecycle:
+ * Base class for the scene model of a Two.js 2D scene. It is an {@link ASceneModel2D} (same lifecycle:
  * `initAppState`, `PreloadAssets`, `initCamera`, `initScene`), with a default camera and an empty `timeUpdate`.
  *
  * Subclasses must implement `initScene()` (create node models and add them with `this.addNode(node)`); override
@@ -16,7 +16,7 @@ import {ASerializable} from "../../base";
  * its result does not match what Two.js draws.)
  */
 @ASerializable("ATwoJSAppSceneModel")
-export abstract class ATwoJSAppSceneModel extends AppSceneModel2D {
+export abstract class ATwoJSAppSceneModel extends ASceneModel2D {
     /**
      * Creates an orthographic {@link ACameraModel2D} spanning `[-scale, scale]` and adds it to the scene. Two.js only
      * uses the camera's position and zoom, not this view volume.

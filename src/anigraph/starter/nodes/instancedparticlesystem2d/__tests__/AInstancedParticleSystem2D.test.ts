@@ -9,8 +9,8 @@ import * as THREE from "three";
 import {AMaterial} from "../../../../rendering/material";
 import {AParticle2D} from "../../../../physics";
 import {Color, Mat3, NodeTransform2D, V2} from "../../../../math";
-import {InstancedParticleSystemModel2D} from "../InstancedParticleSystemModel2D";
-import {InstancedParticleSystemView2D} from "../InstancedParticleSystemView2D";
+import {AInstancedParticleSystemModel2D} from "../AInstancedParticleSystemModel2D";
+import {AInstancedParticleSystemView2D} from "../AInstancedParticleSystemView2D";
 
 new AMeshModel2D(); // priming reference only -- see the import-order note above.
 
@@ -18,7 +18,7 @@ new AMeshModel2D(); // priming reference only -- see the import-order note above
  * not set up yet while the base constructor runs. */
 const initParticlesCalls: number[] = [];
 
-class TestSystemModel extends InstancedParticleSystemModel2D<AParticle2D> {
+class TestSystemModel extends AInstancedParticleSystemModel2D<AParticle2D> {
     initParticles(nParticles: number) {
         initParticlesCalls.push(nParticles);
         for (let i = 0; i < nParticles; i++) {
@@ -27,7 +27,7 @@ class TestSystemModel extends InstancedParticleSystemModel2D<AParticle2D> {
     }
 }
 
-class TestSystemView extends InstancedParticleSystemView2D<AParticle2D> {
+class TestSystemView extends AInstancedParticleSystemView2D<AParticle2D> {
     get2DTransformForParticleIndex(i: number): Mat3 {
         return Mat3.Translation2D(this.model.particles[i].position);
     }
@@ -54,7 +54,7 @@ beforeEach(() => {
     initParticlesCalls.length = 0;
 });
 
-describe("InstancedParticleSystemView2D", () => {
+describe("AInstancedParticleSystemView2D", () => {
     test("update() applies the system's transform together with its zValue (m23 of the render matrix)", () => {
         const {model, view} = makeView(3);
         model.setTransform(new NodeTransform2D(V2(1, 2)));
@@ -80,7 +80,7 @@ describe("InstancedParticleSystemView2D", () => {
     });
 });
 
-describe("InstancedParticleSystemModel2D constructor", () => {
+describe("AInstancedParticleSystemModel2D constructor", () => {
     test("with a count, calls initParticles(count)", () => {
         const model = new TestSystemModel(5);
         expect(initParticlesCalls).toEqual([5]);

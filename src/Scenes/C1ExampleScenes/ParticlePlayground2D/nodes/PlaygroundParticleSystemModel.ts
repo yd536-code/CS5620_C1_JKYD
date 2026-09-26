@@ -1,7 +1,7 @@
 import {ASerializable} from "../../../../anigraph";
 import {
-    InstancedParticleSystemModel2D
-} from "../../../../anigraph/starter/nodes/instancedParticlesSystem/InstancedParticleSystemModel2D";
+    AInstancedParticleSystemModel2D
+} from "../../../../anigraph/starter/nodes/instancedparticlesystem2d/AInstancedParticleSystemModel2D";
 import {PlaygroundParticle} from "./PlaygroundParticle";
 
 /**
@@ -13,7 +13,7 @@ import {PlaygroundParticle} from "./PlaygroundParticle";
  * `initParticles` creates every particle at the start and hides them.
  */
 @ASerializable("PlaygroundParticleSystemModel")
-export class PlaygroundParticleSystemModel extends InstancedParticleSystemModel2D<PlaygroundParticle>{
+export class PlaygroundParticleSystemModel extends AInstancedParticleSystemModel2D<PlaygroundParticle>{
     /**
      * Creates `nParticles` hidden particles. This is the most particles that can ever be visible at once.
      * @param nParticles

@@ -1,5 +1,5 @@
 import {Mat4, Vec2, Vec3, VectorBase} from "../../math";
-import {AParticle} from "./AParticle";
+import {BasicParticle} from "./BasicParticle";
 
 /**
  * An alternative particle base class that separates how the position is stored (`StoredType`) from how it is
@@ -11,7 +11,7 @@ import {AParticle} from "./AParticle";
  * @typeParam InterfaceType The vector type `position` returns.
  * @typeParam StoredType The vector type the position is stored as.
  */
-export abstract class ABasicParticle<InterfaceType extends VectorBase, StoredType extends VectorBase> implements AParticle<InterfaceType>{
+export abstract class ABasicParticle<InterfaceType extends VectorBase, StoredType extends VectorBase> implements BasicParticle<InterfaceType>{
     mass:number=1;
     protected _position!:StoredType;
     abstract get position():InterfaceType;

@@ -10,7 +10,7 @@ The scene to copy when you start your own. It is as small as it can be while sti
 3. For each node model class: add its controls in a `static SetAppState`, its files in a `static async PreloadAssets`, and call both from the scene model. Register its view in the controller's `initModelViewSpecs`.
 4. In `src/MainApp.tsx`, make your scene the active `import AppClasses from "./Scenes/..."` line.
 
-See [`../../CreateAScene.md`](../../CreateAScene.md) for the full walkthrough and [`../../AniGraphSceneGuides.md`](../../AniGraphSceneGuides.md) for where each kind of code belongs.
+See the [Creating a Scene](https://www.cs.cornell.edu/courses/cs4620/2026fa/assignments/docs/assignments/c1/creating-a-scene/) page of the C1 docs for the full walkthrough of this scene, and [`../../AniGraphSceneGuides.md`](../../AniGraphSceneGuides.md) for where each kind of code belongs.
 
 ## How the scene is organized
 ```

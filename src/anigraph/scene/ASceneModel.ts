@@ -40,8 +40,20 @@ export const enum SCENE_MODEL_CONSTANTS{
 export abstract class ASceneModel extends AModel implements HasModelMap, ConfirmInitialized{
     static SceneEvents=SceneGraphEvents;
     @AObjectState protected _isInitialized!:boolean;
-    /** The scene's main camera. Set it in `initCamera` and add it to the scene with `addNode`. */
-    cameraModel!:CameraModelInterface & ANodeModel;
+    /** Storage for {@link cameraModel}. Subclasses read and write the camera through the `cameraModel` accessors. */
+    protected _cameraModel!:CameraModelInterface & ANodeModel;
+
+    /**
+     * The scene's main camera. Set it in `initCamera` and add it to the scene with `addNode`.
+     * `ASceneModel2D` and `ASceneModel3D` override this accessor pair to narrow the type to `ACameraModel2D` and
+     * `ACameraModel3D`, so scene code can use the concrete camera (for example `this.cameraModel.prsa`) without a cast.
+     */
+    get cameraModel():CameraModelInterface & ANodeModel{
+        return this._cameraModel;
+    }
+    set cameraModel(cameraModel:CameraModelInterface & ANodeModel){
+        this._cameraModel = cameraModel;
+    }
     _modelGraphs:{[name:string]:AModelGraph}={};
 
     /** All model graphs owned by this scene model, keyed by name. */
@@ -152,7 +164,7 @@ export abstract class ASceneModel extends AModel implements HasModelMap, Confirm
     /**
      * A uniform scale factor relating normalized device coordinates (roughly ±1) to
      * scene/world coordinates. Backends that use a center-origin, NDC-derived world
-     * space (e.g. `AppSceneModel2D`/`ATwoJSAppSceneModel`) use this to convert cursor
+     * space (e.g. `ASceneModel2D`/`ATwoJSAppSceneModel`) use this to convert cursor
      * positions. Defaults to `GetAppState().globalScale`, cached on first access.
      */
     @AObjectState protected _sceneScale!:number;
@@ -278,8 +290,8 @@ export abstract class ASceneModel extends AModel implements HasModelMap, Confirm
         this.initModelGraphs();
     }
 
-    // Camera setup helpers live in the dimension-specific subclasses: `AppSceneModel2D` (orthographic cameras) and
-    // `AppSceneModel3D` (perspective cameras). `ASceneModel` itself only needs `cameraModel` and `initCamera`.
+    // Camera setup helpers live in the dimension-specific subclasses: `ASceneModel2D` (orthographic cameras) and
+    // `ASceneModel3D` (perspective cameras). `ASceneModel` itself only needs `cameraModel` and `initCamera`.
 
     /** Returns a control-panel spec with a text field for editing the scene's name. */
     getSceneModelControlSpec(){
@@ -316,7 +328,7 @@ export abstract class ASceneModel extends AModel implements HasModelMap, Confirm
     }
 
 
-    // Point-light helpers live in `AppSceneModel3D`, since point lights are 3D-only nodes.
+    // Point-light helpers live in `ASceneModel3D`, since point lights are 3D-only nodes.
 
 
     /** Calls `fn` on every node model in the scene (see `getNodeModels`) and returns the results as a list. */

@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {AppState} from "../../../anigraph";
 import {LabCatParticlePlaygroundModel} from "./nodes";
 
@@ -6,7 +6,7 @@ import {LabCatParticlePlaygroundModel} from "./nodes";
  * The scene model. It is deliberately thin: it creates the playground, adds it to the scene, and passes time and key
  * presses on to it. All of the playground's behavior is in `LabCatParticlePlaygroundModel`.
  */
-export class ParticlePlayground2DSceneModel extends AppSceneModel2D{
+export class ParticlePlayground2DSceneModel extends ASceneModel2D{
     /** The particle playground: Lab Cat plus its particle system. */
     playground!: LabCatParticlePlaygroundModel;
 

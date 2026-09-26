@@ -1,4 +1,4 @@
-import {StandardTexturedShaderModel} from "../../shaderModels";
+import {StandardTexturedShaderModel} from "../../shadermodels";
 import {AShaderMaterial, ATexture, ClassInterface, Color} from "../../../index";
 import {BlinnPhongMaterial} from "../../../rendering/shadermodels";
 

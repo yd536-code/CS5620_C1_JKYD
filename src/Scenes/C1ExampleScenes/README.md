@@ -1,6 +1,6 @@
 # C1ExampleScenes
 
-2D example scenes for the C1 assignment, built on the Three.js `App2D` starter classes ([../../anigraph/starter/App2D/](../../anigraph/starter/App2D/README.md)). They follow the conventions in [../CreateAScene.md](../CreateAScene.md) and [../AniGraphSceneGuides.md](../AniGraphSceneGuides.md): each node model holds its own behavior, assets and controls, the scene model only handles interactions between nodes, and the controller only forwards input.
+2D example scenes for the C1 assignment, built on the Three.js `Scene2D` starter classes ([../../anigraph/starter/Scene2D/](../../anigraph/starter/Scene2D/README.md)). They follow the conventions in [../AniGraphSceneGuides.md](../AniGraphSceneGuides.md): each node model holds its own behavior, assets and controls, the scene model only handles interactions between nodes, and the controller only forwards input.
 
 ## Contents:
 - [./StarterScene](./StarterScene/README.md): The blank template to copy for your own scene: one spinning shape with its own controls, a custom view, and thin scene model and controller.

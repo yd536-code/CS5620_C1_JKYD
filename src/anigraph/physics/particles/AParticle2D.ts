@@ -1,9 +1,9 @@
 import {Color, V2, Vec2, VectorBase} from "../../math";
-import {AParticle} from "./AParticle";
+import {BasicParticle} from "./BasicParticle";
 
 
 /** A 2D particle: a position, a depth (draw order), and optional visibility. */
-export interface Particle2D extends AParticle<Vec2>{
+export interface Particle2D extends BasicParticle<Vec2>{
     position:Vec2;
     /** Depth used for draw ordering. */
     depth:number;

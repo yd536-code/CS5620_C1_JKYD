@@ -1,5 +1,5 @@
 /**
- * Every engine `@ASerializable` label equals its class name. These are the 34 engine classes that once had a
+ * Every engine `@ASerializable` label equals its class name. These are the 33 engine classes that once had a
  * different label (e.g. `VectorBase` "Vector" and `ACameraModel3D` "ACameraModel"). Each must be registered under its
  * class name and not under its former label; the ones constructible with no arguments also get a real round trip.
  * The runtime-only ones among them use `@ALabel` instead (RELABELED_LABEL_ONLY) and are checked separately.
@@ -25,15 +25,14 @@ const RELABELED: [string, string, string][] = [
     ["AMeshModel3D", "ATriangleMeshModel", "../../../scene/nodes/trianglemesh/AMeshModel3D"],
     ["UnitQuadModel3D", "AUnitQuadModel", "../../../scene/nodes/unitquad/UnitQuadModel3D"],
     ["ATwoJSAppSceneModel", "App2DTwoJSSceneModel", "../../../starter/App2DTwoJS/ATwoJSAppSceneModel"],
-    ["AppSceneModel3D", "App3DSceneModel", "../../../starter/App3D/AppSceneModel3D"],
+    ["ASceneModel3D", "AppSceneModel3D", "../../../starter/Scene3D/ASceneModel3D"],
     ["ABackgroundQuadModel3D", "ABackgroundQuadModel", "../../../starter/nodes/backgroundquad/ABackgroundQuadModel3D"],
     ["LoadedCharacterModel3D", "LoadedCharacterModel", "../../../starter/nodes/character/LoadedCharacter/LoadedCharacterModel3D"],
     ["CoordinateAxesModel3D", "CoordinateAxesModel", "../../../starter/nodes/coordinateaxes/CoordinateAxesModel3D"],
-    ["InstancedParticleSystemModel2D", "Instanced2DParticleSystemModel", "../../../starter/nodes/instancedParticlesSystem/InstancedParticleSystemModel2D"],
+    ["AInstancedParticleSystemModel2D", "InstancedParticleSystemModel2D", "../../../starter/nodes/instancedparticlesystem2d/AInstancedParticleSystemModel2D"],
     ["PolygonModel2D", "Polygon2DModel", "../../../starter/nodes/polygon2D/PolygonModel2D"],
     ["RGBATestMeshModel3D", "RGBATestMeshModel", "../../../starter/nodes/rgbatestmesh/RGBATestMeshModel3D"],
     ["ATerrainModel3D", "ATerrainModel", "../../../starter/nodes/terrain/ATerrainModel3D"],
-    ["SVGModel2D", "SVG2DModel", "../../../starter/nodes/textured/SVGModel2D"],
 ];
 
 /**
@@ -86,7 +85,7 @@ describe.each(RELABELED_LABEL_ONLY)("%s (label only)", (className, oldLabel, mod
 describe("round trip under the new labels (classes constructible with no arguments)", () => {
     // Whole scene models overflow the stack in ASerializableToJSON regardless of label (they were never
     // serializable as a unit), so they are left out of the round trip; their registration is still checked above.
-    const NOT_ROUND_TRIPPED = ["ATwoJSAppSceneModel", "AppSceneModel3D"];
+    const NOT_ROUND_TRIPPED = ["ATwoJSAppSceneModel", "ASceneModel3D"];
     const constructible = RELABELED.filter(([className, , modulePath]) => {
         if (NOT_ROUND_TRIPPED.includes(className)) return false;
         try { new (load(className, modulePath))(); return true; } catch (e) { return false; }
@@ -95,11 +94,11 @@ describe("round trip under the new labels (classes constructible with no argumen
     // ACameraModel3D is in this set because `new ACameraModel3D()` creates a default camera.
     test("the set of no-argument-constructible relabeled classes is what it was when this test was written", () => {
         expect(constructible.map(([c]) => c).sort()).toEqual([
-            "ABackgroundQuadModel3D", "ACameraModel3D", "AGeometrySet", "ALightModel3D",
-            "AMeshModel2D", "AMeshModel3D", "AParticleSystemModel2D", "AParticleSystemModel3D",
+            "ABackgroundQuadModel3D", "ACameraModel3D", "AGeometrySet", "AInstancedParticleSystemModel2D",
+            "ALightModel3D", "AMeshModel2D", "AMeshModel3D", "AParticleSystemModel2D", "AParticleSystemModel3D",
             "ASVGLModel2D", "ATerrainModel3D",
-            "CoordinateAxesModel3D", "InstancedParticleSystemModel2D", "PolygonModel2D",
-            "RGBATestMeshModel3D", "SVGModel2D", "UnitQuadModel3D", "VectorBase", "VectorModel2D",
+            "CoordinateAxesModel3D", "PolygonModel2D",
+            "RGBATestMeshModel3D", "UnitQuadModel3D", "VectorBase", "VectorModel2D",
         ]);
     });
 

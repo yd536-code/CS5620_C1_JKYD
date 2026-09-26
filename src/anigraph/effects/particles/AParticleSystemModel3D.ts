@@ -1,7 +1,7 @@
 import {AObject, ASerializable} from "../../base";
 import {Particle3D} from "../../physics/particles/AParticle3D";
 import {ANodeModel3D} from "../../scene";
-import {AParticle} from "../../physics";
+import {BasicParticle} from "../../physics";
 import {ParticleEvents} from "../../physics/particles/AParticleEnums";
 import {ParticleSystemModelInterface} from "./ParticleSystemModelInterface";
 
@@ -12,7 +12,7 @@ import {ParticleSystemModelInterface} from "./ParticleSystemModelInterface";
  * @typeParam P The particle type.
  */
 @ASerializable("AParticleSystemModel3D")
-export class AParticleSystemModel3D<P extends AParticle<any>> extends ANodeModel3D implements ParticleSystemModelInterface<any>{
+export class AParticleSystemModel3D<P extends BasicParticle<any>> extends ANodeModel3D implements ParticleSystemModelInterface<any>{
     /** The particles in this system. */
     particles:P[]=[];
     /** Number of particles. */

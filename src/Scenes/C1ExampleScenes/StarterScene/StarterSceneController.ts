@@ -1,4 +1,4 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, Color} from "../../../anigraph";
 import {StarterSceneModel} from "./StarterSceneModel";
 import {StarterShapeModel, StarterShapeView} from "./nodes";
@@ -8,11 +8,11 @@ import {StarterShapeModel, StarterShapeView} from "./nodes";
  * 1. says which view class draws each kind of model (`initModelViewSpecs`),
  * 2. passes keyboard and mouse input on to the scene model (`initInteractions`).
  *
- * The frame loop comes from {@link AppSceneController2D}: every frame it calls the scene model's
+ * The frame loop comes from {@link ASceneController2D}: every frame it calls the scene model's
  * `timeUpdate(t)`, then renders.
  * It doesn't decide what input means; the models do.
  */
-export class StarterSceneController extends AppSceneController2D{
+export class StarterSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
     get model(): StarterSceneModel{
         return this._model as StarterSceneModel;
@@ -30,8 +30,9 @@ export class StarterSceneController extends AppSceneController2D{
 
     /**
      * Pairs each model class with the view class that draws it. When a model of one of these classes is added to the
-     * scene, the controller creates a view of the matching class for it. Specs match a model's exact class, so every
-     * model class you write needs its own entry, even a subclass of one that already has one.
+     * scene, the controller creates a view of the matching class for it. A spec doesn't apply to a subclass that has
+     * its own `@ASerializable` label, and every model class you write should have one, so every model class you write
+     * needs its own entry, even a subclass of one that already has one.
      */
     initModelViewSpecs(){
         super.initModelViewSpecs();   // keeps the built-in specs (camera, group nodes)

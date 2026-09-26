@@ -16,7 +16,7 @@ import type {HasInteractionModeCallbacks} from "../../interaction";
 
 /**
  * The 2D (Three.js) starter's default interaction mode: drag to pan and mouse wheel to zoom the scene's
- * {@link ACameraModel2D}. It forwards input to one `PanZoomController2D`. {@link AppSceneController2D} registers it
+ * {@link ACameraModel2D}. It forwards input to one `PanZoomController2D`. {@link ASceneController2D} registers it
  * in `initInteractions()` instead of the 3D {@link ADebugInteractionMode}, which has no effect on a 2D camera.
  *
  * `panZoomController` is created lazily, on first access: `ASceneInteractionMode`'s constructor runs `init()` inside

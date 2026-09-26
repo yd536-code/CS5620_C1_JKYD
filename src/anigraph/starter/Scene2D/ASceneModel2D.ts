@@ -4,8 +4,12 @@ import {ACameraModel2D} from "../../scene/camera";
 
 /**
  * Base class for a 2D (Three.js) app's scene model: the main data model of your application and the root of the
- * hierarchy of node models that make up the scene. Subclass it and override the methods below; they run in this
- * order:
+ * hierarchy of node models that make up the scene.
+ *
+ * This is the 2D starter scene model that 2D scenes extend. It builds on {@link ABasicSceneModel}, which in turn
+ * builds on the engine's general `ASceneModel`; for a 2D scene, extend `ASceneModel2D`, not `ASceneModel`.
+ *
+ * Subclass it and override the methods below; they run in this order:
  *
  * 1. `initAppState(appState)`: add control-panel controls (runs before anything else, before the camera exists).
  * 2. `PreloadAssets()`: load shaders, textures, and models. Call `await super.PreloadAssets()` first.
@@ -14,7 +18,7 @@ import {ACameraModel2D} from "../../scene/camera";
  * 4. `initScene()`: create node models and add each top-level one with `this.addNode(node)`. (`addChild` throws on
  *    a scene model; under a node, use `parent.addChild(child)`.)
  *
- * After that, `timeUpdate(t)` is where per-frame model logic goes. {@link AppSceneController2D}'s default frame loop
+ * After that, `timeUpdate(t)` is where per-frame model logic goes. {@link ASceneController2D}'s default frame loop
  * calls it once per frame with the model clock's current time (`clock.currentTime`). Node models' `timeUpdate`s are
  * not called automatically: call them from here.
  *
@@ -26,7 +30,18 @@ import {ACameraModel2D} from "../../scene/camera";
  * }
  * ```
  */
-export abstract class AppSceneModel2D extends ABasicSceneModel{
+export abstract class ASceneModel2D extends ABasicSceneModel{
+
+    /**
+     * The scene's camera, typed as the {@link ACameraModel2D} that `initCamera` creates. It is a 2D node, so you can
+     * move it with `this.cameraModel.prsa` and zoom with `this.cameraModel.camera.zoom`.
+     */
+    get cameraModel():ACameraModel2D{
+        return this._cameraModel as ACameraModel2D;
+    }
+    set cameraModel(cameraModel:ACameraModel2D){
+        this._cameraModel = cameraModel;
+    }
 
     /** Loads assets before the scene is built. Overrides should call `await super.PreloadAssets()` first. */
     async PreloadAssets(): Promise<void> {
@@ -111,7 +126,7 @@ export abstract class AppSceneModel2D extends ABasicSceneModel{
      * Per-frame model update. Override it with your scene's time-based logic (for example, call each node's
      * `timeUpdate`). The default does nothing.
      *
-     * {@link AppSceneController2D}'s default `onAnimationFrameCallback` calls it once per frame with
+     * {@link ASceneController2D}'s default `onAnimationFrameCallback` calls it once per frame with
      * `this.clock.currentTime` (the clock's time at that moment). The model runs on its own clock (`this.clock`), separate from the controller's, so pausing
      * the model doesn't stop camera interaction.
      * @param t the time to update to. Overrides usually read it as their first argument; when it is omitted, use

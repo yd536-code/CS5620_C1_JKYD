@@ -165,7 +165,7 @@ control points — so the slider's `max` needs to track that from code, not
 from the user dragging `t` itself.
 
 ```ts
-class SplineSceneModel extends AppSceneModel2D {
+class SplineSceneModel extends ASceneModel2D {
     splineNode!: BezierSplineModel;
 
     // Step 2's guard: the segment count `t`'s range was last synced to.

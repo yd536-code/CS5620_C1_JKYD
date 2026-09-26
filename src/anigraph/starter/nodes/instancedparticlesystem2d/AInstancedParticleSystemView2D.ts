@@ -1,21 +1,21 @@
 import {Particle2D} from "../../../physics";
 import {AInstancedParticleSystemGraphic3D, AInstancedParticleSystemView3D} from "../../../effects";
-import {InstancedParticleSystemModel2D} from "./InstancedParticleSystemModel2D";
+import {AInstancedParticleSystemModel2D} from "./AInstancedParticleSystemModel2D";
 import {Color, Mat3, Mat4} from "../../../math";
 
 /**
- * Base view for an {@link InstancedParticleSystemModel2D}: draws every particle as one instance of a single
+ * Base view for an {@link AInstancedParticleSystemModel2D}: draws every particle as one instance of a single
  * instanced graphic. Subclasses implement `get2DTransformForParticleIndex(i)` and `getColorForParticleIndex(i)`;
  * the 2D transforms are embedded into 4x4 matrices for rendering. `update()` applies the system model's own transform,
  * including its `zValue`.
  */
-export abstract class InstancedParticleSystemView2D<P extends Particle2D> extends AInstancedParticleSystemView3D<P>{
+export abstract class AInstancedParticleSystemView2D<P extends Particle2D> extends AInstancedParticleSystemView3D<P>{
 
     get particlesElement():AInstancedParticleSystemGraphic3D{
         return this._particlesElement as AInstancedParticleSystemGraphic3D;
     }
-    get model():InstancedParticleSystemModel2D<P>{
-        return this._model as InstancedParticleSystemModel2D<P>;
+    get model():AInstancedParticleSystemModel2D<P>{
+        return this._model as AInstancedParticleSystemModel2D<P>;
     }
 
     /** The 4x4 instance matrix for particle `i` (from `get2DTransformForParticleIndex`). Warns if there is no

@@ -1,5 +1,5 @@
 import { ANodeModel} from "../../scene";
-import {AParticle} from "../../physics";
+import {BasicParticle} from "../../physics";
 import {AEventCallbackSwitch, AObject} from "../../base";
 
 
@@ -8,7 +8,7 @@ import {AEventCallbackSwitch, AObject} from "../../base";
  * Implemented by `AParticleSystemModel2D` and `AParticleSystemModel3D`.
  * @typeParam P The particle type.
  */
-export interface ParticleSystemModelInterface<P extends AParticle<any>> extends ANodeModel{
+export interface ParticleSystemModelInterface<P extends BasicParticle<any>> extends ANodeModel{
     particles:P[];
     get nParticles():number;
     /** Adds a listener for the `PARTICLES_UPDATED` event. Returns a switch that can deactivate it. */

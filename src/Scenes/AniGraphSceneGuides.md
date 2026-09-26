@@ -1,6 +1,6 @@
 # AniGraph scene guidelines: where logic goes
 
-A scene has three kinds of classes: **node models**, a **scene model** and a **scene controller**. These guidelines say which one a piece of code belongs in. For how to create a scene, see [CreateAScene.md](./CreateAScene.md). For an example that follows these guidelines, see [C1ExampleScenes/ParticlePlayground2D](C1ExampleScenes/ParticlePlayground2D/README.md).
+A scene has three kinds of classes: **node models**, a **scene model** and a **scene controller**. These guidelines say which one a piece of code belongs in. For how to create a scene, see the [Creating a Scene](https://www.cs.cornell.edu/courses/cs4620/2026fa/assignments/docs/assignments/c1/creating-a-scene/) page of the C1 docs. For an example that follows these guidelines, see [C1ExampleScenes/ParticlePlayground2D](C1ExampleScenes/ParticlePlayground2D/README.md).
 
 ## Node models: anything that can go here should
 

@@ -5,14 +5,14 @@ import {AssetManager} from "../../fileio";
 
 
 /**
- * Shared base for the starter scene models ({@link AppSceneModel2D}, {@link AppSceneModel3D}). Adds `getTexture` (a
+ * Shared base for the starter scene models ({@link ASceneModel2D}, {@link ASceneModel3D}). Adds `getTexture` (a
  * shortcut for `AssetManager.getTexture`) and a helper for a model play-speed slider on top of {@link ASceneModel}.
  * Most students extend one of the App scene models rather than this class directly.
  */
 @ASerializable("ABasicSceneModel")
 export abstract class ABasicSceneModel extends ASceneModel{
     // sceneScale is inherited from ASceneModel.
-    // The view light (`viewLight`, `addViewLight`) is on AppSceneModel3D, since point lights are 3D-only.
+    // The view light (`viewLight`, `addViewLight`) is on ASceneModel3D, since point lights are 3D-only.
 
     /**
      * Returns the texture that was loaded under `name` with `AssetManager.loadTexture`, or `undefined` if none was.

@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {AppState, Vec2} from "../../../anigraph";
 import {RowOfCopiesModel} from "./nodes";
 
@@ -6,7 +6,7 @@ import {RowOfCopiesModel} from "./nodes";
  * The scene model. It creates the row of copies and passes time and drags on to it. This scene has one node, so the
  * scene model only connects things; all of the behavior is in `RowOfCopiesModel` and its view.
  */
-export class CopiesViewSceneModel extends AppSceneModel2D{
+export class CopiesViewSceneModel extends ASceneModel2D{
     /** The node whose view draws the copies. */
     row!: RowOfCopiesModel;
 

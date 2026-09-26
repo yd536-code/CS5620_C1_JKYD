@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {AppState, Vec2} from "../../../anigraph";
 import {StarterShapeModel} from "./nodes";
 
@@ -12,7 +12,7 @@ import {StarterShapeModel} from "./nodes";
  * `@ALabel("c1.BouncingBallView")`), and its class docstring starts with a `@c1scene <SceneName>` line. See
  * `AGENTS.md`. This template's own labels predate that and stay as they are.
  */
-export class StarterSceneModel extends AppSceneModel2D{
+export class StarterSceneModel extends ASceneModel2D{
     /** The example shape. Replace it with your own nodes. */
     shape!: StarterShapeModel;
 

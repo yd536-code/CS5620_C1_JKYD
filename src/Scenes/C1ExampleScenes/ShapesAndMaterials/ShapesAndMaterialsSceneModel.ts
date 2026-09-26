@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {AObjectNode, AppState, AssetManager, V2} from "../../../anigraph";
 import {
     ColorWheel,
@@ -15,7 +15,7 @@ import {
  * lays them out, forwards time to them, and passes clicks on to whichever exhibit was clicked. The exhibits do the
  * rest themselves.
  */
-export class ShapesAndMaterialsSceneModel extends AppSceneModel2D{
+export class ShapesAndMaterialsSceneModel extends ASceneModel2D{
     /** Names of the scene's own control-panel entries. */
     static ControlKeys = {
         Background: "Background",

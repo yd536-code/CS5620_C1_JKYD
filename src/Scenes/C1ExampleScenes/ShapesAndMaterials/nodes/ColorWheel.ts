@@ -11,7 +11,7 @@ import {PolygonModel2D} from "../../../../anigraph/starter/nodes/polygon2D";
  *   from the center to each pair of neighboring outline vertices. Colors blend smoothly out from the white center.
  *
  * Both return plain engine node models (`PolygonModel2D`, drawn by `PolygonView2D`, and `AMeshModel2D`, drawn by
- * `A2DMeshView`). You don't need your own class when an engine class already does the job.
+ * `AMeshView2D`). You don't need your own class when an engine class already does the job.
  */
 export class ColorWheel{
     /** Number of points on the star. */

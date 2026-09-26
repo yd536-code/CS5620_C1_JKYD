@@ -4,7 +4,7 @@ import {VertexArray2D} from "../../../../geometry";
 import type {TransformationInterface2D} from "../../../../math";
 
 /**
- * The general-purpose 2D node type for arbitrary flat geometry: a raw `VertexArray2D` mesh, drawn by `A2DMeshView`.
+ * The general-purpose 2D node type for arbitrary flat geometry: a raw `VertexArray2D` mesh, drawn by `AMeshView2D`.
  * Its transform representation follows `ANodeModel2D`'s default (`NodeTransform2D`).
  */
 @ASerializable("AMeshModel2D")

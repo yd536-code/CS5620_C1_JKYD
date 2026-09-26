@@ -1,8 +1,8 @@
 import {V3, Vec3} from "../../math";
-import {AParticle} from "./AParticle";
+import {BasicParticle} from "./BasicParticle";
 
 /** A 3D particle with mass, position, and velocity. */
-export interface Particle3D extends AParticle<Vec3>{
+export interface Particle3D extends BasicParticle<Vec3>{
     mass:number;
     position:Vec3;
     velocity:Vec3;

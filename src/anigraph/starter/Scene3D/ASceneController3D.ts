@@ -1,4 +1,4 @@
-import {AppSceneModel3D} from "./AppSceneModel3D";
+import {ASceneModel3D} from "./ASceneModel3D";
 import {Color, Quaternion} from "../../index"
 import {ABasicSceneController, ADebugInteractionMode} from "../index";
 import {AMeshModel3D, ATriangleMeshView, UnitQuadModel3D, UnitQuadView3D} from "../../scene";
@@ -15,12 +15,12 @@ import * as THREE from "three";
  *
  * The inherited `onAnimationFrameCallback` calls `model.timeUpdate()`, updates the controller, and renders.
  */
-export abstract class AppSceneController3D extends ABasicSceneController{
+export abstract class ASceneController3D extends ABasicSceneController{
     // onAnimationFrameCallback and initInteractions are inherited (concrete) from ABasicSceneController, so
     // subclasses can call `super.onAnimationFrameCallback(...)`/`super.initInteractions()`.
 
-    get model():AppSceneModel3D{
-        return this._model as AppSceneModel3D;
+    get model():ASceneModel3D{
+        return this._model as ASceneModel3D;
     }
 
     /**

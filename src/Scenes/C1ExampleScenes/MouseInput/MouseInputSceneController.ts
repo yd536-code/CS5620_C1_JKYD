@@ -1,4 +1,4 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {ADragInteraction, AInteractionEvent, Color} from "../../../anigraph";
 import {PolygonView2D} from "../../../anigraph/starter/nodes/polygon2D";
 import {MouseInputSceneModel} from "./MouseInputSceneModel";
@@ -13,7 +13,7 @@ import {ShapeModel} from "./nodes";
  * Only one mode is active at a time, and only the active mode's callbacks run. Pick a mode in the control panel's
  * InteractionMode menu (which also lists the default Pan/Zoom mode).
  */
-export class MouseInputSceneController extends AppSceneController2D{
+export class MouseInputSceneController extends ASceneController2D{
     /** The names of this scene's interaction modes. */
     static Modes = {
         Edit: "Edit",

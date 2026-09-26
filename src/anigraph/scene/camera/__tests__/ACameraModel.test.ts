@@ -124,7 +124,7 @@ describe("ACameraModel3D (renamed from ACameraModel)", () => {
     });
 });
 
-describe("ACameraModel2D (the camera of every AppSceneModel2D scene)", () => {
+describe("ACameraModel2D (the camera of every ASceneModel2D scene)", () => {
     test("constructs with a default wrapped camera and a native 2D transform, independent of the camera's own pose", () => {
         const cameraModel = new ACameraModel2D();
         expect(cameraModel.transform).toBeInstanceOf(NodeTransform2D);

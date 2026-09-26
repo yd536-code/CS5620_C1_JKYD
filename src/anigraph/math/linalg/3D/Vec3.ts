@@ -2,9 +2,9 @@ import * as THREE from "three";
 import { VectorBase } from "../VectorBase";
 import { Random } from "../../Random";
 import { ASerializable } from "../../../base/aserial";
-import { Vec2 } from "./Vec2";
-import { Vec4 } from "../3D";
-import { Quaternion } from "../3D";
+import { Vec2 } from "../2D/Vec2";
+import { Vec4 } from "./Vec4";
+import { Quaternion } from "./Quaternion";
 
 /**
  * A 3-component vector. Used both for 3D points/directions and for 2D points/directions in homogeneous coordinates

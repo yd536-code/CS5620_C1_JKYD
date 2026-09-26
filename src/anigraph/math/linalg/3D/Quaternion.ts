@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Matrix4, Vector3 } from "three";
 import { V4, Vec4 } from "./Vec4";
-import { V3, Vec3 } from "../2D/Vec3";
+import { V3, Vec3 } from "./Vec3";
 import { Mat4 } from "./Mat4";
 import { Mat3 } from "../2D";
 import { Precision } from "../../Precision";

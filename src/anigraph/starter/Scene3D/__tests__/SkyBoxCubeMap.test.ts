@@ -1,5 +1,5 @@
 /**
- * Tests for {@link AppSceneController3D.initSkyBoxCubeMap}: which face URLs it loads, and which background rotation
+ * Tests for {@link ASceneController3D.initSkyBoxCubeMap}: which face URLs it loads, and which background rotation
  * it applies, for each way of calling it.
  *
  * A real controller needs a WebGL context, so these call the real prototype method on a small fake `this` that
@@ -9,12 +9,12 @@
 import {AMeshModel2D} from "../../../scene/nodes/2d/mesh2d/AMeshModel2D";
 import * as THREE from "three";
 import {Quaternion} from "../../../math";
-import {AppSceneController3D} from "../AppSceneController3D";
+import {ASceneController3D} from "../ASceneController3D";
 
 new AMeshModel2D();
 
 /** The method under test. Typed loosely, because `.call` on an overloaded method only accepts the last overload. */
-const initSkyBox: (this: any, ...args: any[]) => void = AppSceneController3D.prototype.initSkyBoxCubeMap;
+const initSkyBox: (this: any, ...args: any[]) => void = ASceneController3D.prototype.initSkyBoxCubeMap;
 
 /** Makes a fake controller that records the background texture and transform it is given. */
 function makeFakeController() {
@@ -29,7 +29,7 @@ function makeFakeController() {
 
 const FACE_URLS = ["a/px.png", "a/nx.png", "a/py.png", "a/ny.png", "a/pz.png", "a/nz.png"];
 
-describe("AppSceneController3D.initSkyBoxCubeMap", () => {
+describe("ASceneController3D.initSkyBoxCubeMap", () => {
     let loadSpy: jest.SpyInstance;
     beforeEach(() => {
         loadSpy = jest.spyOn(THREE.CubeTextureLoader.prototype, "load").mockImplementation(

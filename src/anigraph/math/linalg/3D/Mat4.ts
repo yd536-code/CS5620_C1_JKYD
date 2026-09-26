@@ -1,6 +1,7 @@
 import {Matrix} from "../Matrix";
 import {VectorBase} from "../VectorBase";
-import {Vec2, Vec3} from "../2D";
+import {Vec2} from "../2D";
+import {Vec3} from "./Vec3";
 import {Vec4} from "./Vec4";
 import {assert} from "../../../basictypes";
 import {Random} from "../../Random";
@@ -10,7 +11,7 @@ import {Mat3} from "../2D";
 import * as THREE from "three";
 import {AniGraphDefines} from "../../../defines";
 import {Color} from "../../Color";
-import {TransformationInterface} from "../../TrasnformationInterface";
+import {TransformationInterface} from "../../TransformationInterface";
 import { Quaternion } from "./Quaternion";
 
 

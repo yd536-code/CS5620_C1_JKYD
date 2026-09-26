@@ -1,4 +1,4 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {AGroupNodeView, AInteractionEvent, Color} from "../../../anigraph";
 import {PolygonModel2D, PolygonView2D} from "../../../anigraph/starter/nodes/polygon2D";
 import {AttachAndDetachSceneModel} from "./AttachAndDetachSceneModel";
@@ -7,7 +7,7 @@ import {MoonModel, OrbitModel} from "./nodes";
 /**
  * The scene controller: view specs, a background color, and clicks, which it turns into "this node was picked".
  */
-export class AttachAndDetachSceneController extends AppSceneController2D{
+export class AttachAndDetachSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
     get model(): AttachAndDetachSceneModel{
         return this._model as AttachAndDetachSceneModel;

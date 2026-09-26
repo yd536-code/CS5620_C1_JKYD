@@ -13,7 +13,7 @@ export interface ACameraModel2D extends CameraModelInterface {
 }
 
 /**
- * A 2D scene's camera, as a 2D scene-graph node. `AppSceneModel2D`'s orthographic camera setup creates one, and
+ * A 2D scene's camera, as a 2D scene-graph node. `ASceneModel2D`'s orthographic camera setup creates one, and
  * `PanZoomController2D` pans and zooms it.
  *
  * The camera's pose is this node's own 2D transform (inherited from {@link ANodeModel2D}); move the camera by

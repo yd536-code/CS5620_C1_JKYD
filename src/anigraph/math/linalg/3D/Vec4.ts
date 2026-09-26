@@ -1,7 +1,8 @@
 import { VectorBase } from "../VectorBase";
 import { Random } from "../../Random";
 import { ASerializable } from "../../../base/aserial";
-import { Vec2, Vec3 } from "../2D";
+import { Vec2 } from "../2D";
+import { Vec3 } from "./Vec3";
 import { Precision } from "../../Precision";
 
 import * as THREE from "three";

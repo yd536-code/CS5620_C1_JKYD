@@ -3,7 +3,7 @@ import { NodeTransform } from "./NodeTransform";
 import {Vec2, Vec3, Mat3, Mat4, Quaternion, V4, V3, V2} from "../linalg";
 import { Precision } from "../Precision";
 import { NodeTransform3D } from "./NodeTransform3D";
-import {TransformationInterface} from "../TrasnformationInterface";
+import {TransformationInterface} from "../TransformationInterface";
 
 /**
  * A 2D transform stored as position, rotation, scale, and anchor (PRSA). Its matrix is the product `M = P*R*S*A`,

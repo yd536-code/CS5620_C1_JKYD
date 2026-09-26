@@ -1,7 +1,7 @@
 import {Color, Mat4} from "../../../index";
 import {AInstancedParticleSystemGraphic3D} from "./AInstancedParticleSystemGraphic3D";
 import {AParticleSystemView3D} from "../AParticleSystemView3D";
-import {AParticle} from "../../../index";
+import {BasicParticle} from "../../../index";
 
 
 /**
@@ -10,7 +10,7 @@ import {AParticle} from "../../../index";
  * `_getColorForParticleIndex`, and `_getTransformForParticleIndex`.
  * @typeParam P The particle type.
  */
-export abstract class AInstancedParticleSystemView3D<P extends AParticle<any>> extends AParticleSystemView3D<P>{
+export abstract class AInstancedParticleSystemView3D<P extends BasicParticle<any>> extends AParticleSystemView3D<P>{
     /**
      * Subclasses must also implement `createParticlesElement` from `AParticleSystemView3D`.
      * (`updateParticles` is implemented below.)

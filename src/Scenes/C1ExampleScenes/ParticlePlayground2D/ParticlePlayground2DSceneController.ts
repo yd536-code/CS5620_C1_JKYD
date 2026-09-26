@@ -1,4 +1,4 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {
     AGroupNodeView,
     AInteractionEvent,
@@ -15,11 +15,11 @@ import {LabCatParticlePlaygroundModel, PlaygroundParticleSystemModel, Playground
  * 1. says which view class draws each kind of model (`initModelViewSpecs`),
  * 2. passes keyboard input on to the scene model (`initInteractions`).
  *
- * The frame loop comes from {@link AppSceneController2D}: every frame it calls the scene model's
+ * The frame loop comes from {@link ASceneController2D}: every frame it calls the scene model's
  * `timeUpdate(t)`, then renders.
  * It doesn't know what any key does; the models decide that.
  */
-export class ParticlePlayground2DSceneController extends AppSceneController2D{
+export class ParticlePlayground2DSceneController extends ASceneController2D{
     get model(): ParticlePlayground2DSceneModel{
         return this._model as ParticlePlayground2DSceneModel;
     }
@@ -34,8 +34,9 @@ export class ParticlePlayground2DSceneController extends AppSceneController2D{
      * Pairs each model class with the view class that draws it. When a model of one of these classes is added to the
      * scene, the controller creates a view of the matching class for it.
      *
-     * Views are matched by the model's exact class, not its parent classes. That is why the playground needs its own
-     * entry even though it is a group node: the default entry for `AGroupNodeModel2D` doesn't apply to subclasses.
+     * A spec doesn't apply to a subclass that has its own `@ASerializable` label. That is why the playground needs its
+     * own entry even though it is a group node: the default entry for `AGroupNodeModel2D` doesn't apply to a labeled
+     * subclass like `LabCatParticlePlaygroundModel`.
      */
     initModelViewSpecs(){
         super.initModelViewSpecs();

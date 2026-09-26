@@ -1,12 +1,12 @@
 import { Matrix } from "../Matrix";
 import {Vector, VectorBase} from "../VectorBase";
-import { Vec3 } from "./Vec3";
+import { Vec3 } from "../3D/Vec3";
 import { Vec2 } from "./Vec2";
 import {Mat4, Quaternion} from "../3D";
 import {assert} from "../../../basictypes";
 import { Random } from "../../Random";
 import { ASerializable } from "../../../base/aserial";
-import {TransformationInterface} from "../../TrasnformationInterface";
+import {TransformationInterface} from "../../TransformationInterface";
 import * as THREE from "three";
 
 /**

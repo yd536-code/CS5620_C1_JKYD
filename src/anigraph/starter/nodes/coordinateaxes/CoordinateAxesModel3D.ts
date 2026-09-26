@@ -6,7 +6,7 @@ import {AssetManager} from "../../../fileio";
 
 /**
  * Red, green, and blue x, y, and z axes, useful for seeing where the origin is and which way the axes point. Drawn by
- * {@link CoordinateAxesView3D} (registered by default in {@link AppSceneController3D}).
+ * {@link CoordinateAxesView3D} (registered by default in {@link ASceneController3D}).
  */
 @ASerializable("CoordinateAxesModel3D")
 export class CoordinateAxesModel3D extends ANodeModel3D{

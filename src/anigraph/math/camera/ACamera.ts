@@ -3,7 +3,7 @@ import {AniGraphDefines} from "../../defines";
 import {NodeTransform3D} from "../nodetransforms";
 import {Mat4, V2, V4, Vec2, Vec3, Vec4} from "../linalg";
 import * as THREE from "three";
-import {TransformationInterface3D, TransformationInterface} from "../TrasnformationInterface";
+import {TransformationInterface3D, TransformationInterface} from "../TransformationInterface";
 import {Camera} from "three";
 import {VertexArray3D} from "../../geometry";
 import {CameraProjectionKind, OrthographicProjection, PerspectiveProjection} from "./CameraProjection";

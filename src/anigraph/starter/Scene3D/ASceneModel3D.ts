@@ -30,8 +30,16 @@ import {APointLightModel3D} from "../../scene/lights";
  * }
  * ```
  */
-@ASerializable("AppSceneModel3D")
-export abstract class AppSceneModel3D extends ABasicSceneModel{
+@ASerializable("ASceneModel3D")
+export abstract class ASceneModel3D extends ABasicSceneModel{
+
+    /** The scene's camera, typed as the {@link ACameraModel3D} that the `initPerspectiveCamera*` helpers create. */
+    get cameraModel():ACameraModel3D{
+        return this._cameraModel as ACameraModel3D;
+    }
+    set cameraModel(cameraModel:ACameraModel3D){
+        this._cameraModel = cameraModel;
+    }
 
     /**
      * Per-frame model update; put your scene's time-based logic here (for example, call each node's `timeUpdate`).
@@ -140,11 +148,11 @@ export abstract class AppSceneModel3D extends ABasicSceneModel{
         const self = this;
         this.subscribe(this.camera.addPoseListener(()=>{
             self.viewLight.setTransform(self.camera.transform);
-        }), AppSceneModel3D._VIEW_LIGHT_SUBSCRIPTION_KEY);
+        }), ASceneModel3D._VIEW_LIGHT_SUBSCRIPTION_KEY);
     }
     /** Stops `viewLight` from following the camera. */
     _detachViewLightFromCamera(){
-        this.unsubscribe(AppSceneModel3D._VIEW_LIGHT_SUBSCRIPTION_KEY);
+        this.unsubscribe(ASceneModel3D._VIEW_LIGHT_SUBSCRIPTION_KEY);
     }
 
     // async PreloadAssets(): Promise<void> {

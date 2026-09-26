@@ -1,6 +1,6 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {
-    A2DMeshView,
+    AMeshView2D,
     AGroupNodeView,
     AInteractionEvent,
     AMeshModel2D,
@@ -26,7 +26,7 @@ import {
  * The scene controller. It pairs every model class with its view, turns clicks into "this node was picked", and sets
  * the background. The background is a rendering setting, so it is one of the few things a controller decides itself.
  */
-export class ShapesAndMaterialsSceneController extends AppSceneController2D{
+export class ShapesAndMaterialsSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
     get model(): ShapesAndMaterialsSceneModel{
         return this._model as ShapesAndMaterialsSceneModel;
@@ -63,16 +63,17 @@ export class ShapesAndMaterialsSceneController extends AppSceneController2D{
     }
 
     /**
-     * Pairs each model class with the view that draws it. Specs match the model's exact class, so every class that
-     * appears in the scene is listed, including the plain engine classes.
+     * Pairs each model class with the view that draws it. Only the group node has a built-in spec, and it doesn't
+     * apply to subclasses with their own `@ASerializable` label, so every class that appears in the scene is listed,
+     * including the plain engine classes.
      */
     initModelViewSpecs(){
         super.initModelViewSpecs();
         this.addModelViewSpec(ExhibitModel, AGroupNodeView);
         this.addModelViewSpec(LayeringModel, AGroupNodeView);
         this.addModelViewSpec(PolygonModel2D, PolygonView2D);
-        this.addModelViewSpec(AMeshModel2D, A2DMeshView);
-        this.addModelViewSpec(FlipbookModel, A2DMeshView);
+        this.addModelViewSpec(AMeshModel2D, AMeshView2D);
+        this.addModelViewSpec(FlipbookModel, AMeshView2D);
         this.addModelViewSpec(ASVGLModel2D, ASVGLView);
         this.addModelViewSpec(WaveLineModel, WaveLineView);
         this.addModelViewSpec(MarkedShapeModel, MarkedShapeView);

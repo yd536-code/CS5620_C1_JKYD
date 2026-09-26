@@ -1,6 +1,6 @@
 /**
  * Tests for two members every backend shares through the `ASceneController` base: `getWorldCoordinatesOfCursorEvent`
- * (used by `AppSceneController2D`/`ATwoJSAppSceneController`) and `initSceneViews` (used by
+ * (used by `ASceneController2D`/`ATwoJSAppSceneController`) and `initSceneViews` (used by
  * `AGLSceneController`/`ATwoJSSceneController`; it loops over `this.model.modelGraphs` and calls the
  * backend-specific `createSceneView`).
  *

@@ -1,14 +1,14 @@
-import {AppSceneController2D} from "../../../anigraph/starter/App2D/AppSceneController2D";
+import {ASceneController2D} from "../../../anigraph/starter/Scene2D/ASceneController2D";
 import {ADragInteraction, AInteractionEvent, Color} from "../../../anigraph";
 import {CopiesViewSceneModel} from "./CopiesViewSceneModel";
 import {RowOfCopiesModel, RowOfCopiesView} from "./nodes";
 
 /**
  * The scene controller. It pairs the model with its view and passes drags on to the scene model, in world
- * coordinates. The frame loop comes from {@link AppSceneController2D}, which calls the scene model's `timeUpdate(t)`
+ * coordinates. The frame loop comes from {@link ASceneController2D}, which calls the scene model's `timeUpdate(t)`
  * every frame.
  */
-export class CopiesViewSceneController extends AppSceneController2D{
+export class CopiesViewSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
     get model(): CopiesViewSceneModel{
         return this._model as CopiesViewSceneModel;

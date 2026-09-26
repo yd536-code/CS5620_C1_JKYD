@@ -1,7 +1,7 @@
 import { VectorBase } from "./VectorBase";
 import { Precision } from "../Precision";
 import {assert} from "../../basictypes";
-import { TransformationInterface} from "../TrasnformationInterface";
+import { TransformationInterface} from "../TransformationInterface";
 
 /**
  * Base class for the square matrices {@link Mat3} and {@link Mat4}. Elements are stored in **row-major** order

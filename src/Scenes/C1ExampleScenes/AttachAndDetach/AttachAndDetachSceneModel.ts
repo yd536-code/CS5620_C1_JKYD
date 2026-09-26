@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {ANodeModel, ANodeModel2D, AObjectNode, Mat3, V2} from "../../../anigraph";
 import {MoonModel, OrbitModel} from "./nodes";
 
@@ -13,7 +13,7 @@ import {MoonModel, OrbitModel} from "./nodes";
  * So the scene model also changes the transform, to keep the node's **world** transform the same
  * (`ReparentKeepingWorldTransform`).
  */
-export class AttachAndDetachSceneModel extends AppSceneModel2D{
+export class AttachAndDetachSceneModel extends ASceneModel2D{
     orbit!: OrbitModel;
 
     /**

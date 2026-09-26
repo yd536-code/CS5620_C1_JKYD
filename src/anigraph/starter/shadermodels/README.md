@@ -4,4 +4,4 @@ A single convenience wrapper around the Blinn-Phong shader model from [../../ren
 
 ## Contents:
 - [./StandardTexturedShaderModel.ts](./StandardTexturedShaderModel.ts): Extends `ABlinnPhongShaderModel` with a `CreateMaterial` override that optionally pre-binds a diffuse texture. Intended as a simple starting point for textured 3D objects.
-- [./index.ts](./index.ts): Barrel export for the starter shaderModels module.
+- [./index.ts](./index.ts): Barrel export for the starter shadermodels module.

@@ -1,0 +1,9 @@
+# Instanced 2D Particle System
+
+This is a thin, ready-to-subclass 2D specialization of the general GPU-instanced particle machinery in [../../../effects/particles/](../../../effects/particles/README.md) — a starting point for course assignments that need a working 2D particle effect (e.g. sparks, confetti) without reimplementing the instancing plumbing. `AInstancedParticleSystemModel2D` extends `AParticleSystemModel2D` and adds one abstract hook, `initParticles(nParticles)`, that a concrete subclass must implement to actually populate the particle array; `AInstancedParticleSystemGraphic2D` is a near-empty subclass of `AInstancedParticleSystemGraphic3D` that just exposes a convenience `Create(nParticles, material)` factory. `AInstancedParticleSystemView2D` is the glue between them, translating the model's 2D particle state into the per-instance transform/color updates the instanced graphic expects each frame.
+
+## Contents:
+- [./__tests__](./__tests__/README.md): Jest specs for the 2D instanced particle system (zValue, instance-range warning, constructor).
+- [./AInstancedParticleSystemGraphic2D.ts](./AInstancedParticleSystemGraphic2D.ts): Graphic class for the instanced 2D particle system, adapting `AInstancedParticleSystemGraphic3D` for 2D space.
+- [./AInstancedParticleSystemModel2D.ts](./AInstancedParticleSystemModel2D.ts): Abstract 2D instanced particle system model extending `AParticleSystemModel2D`. Requires subclasses to implement `initParticles(nParticles)`.
+- [./AInstancedParticleSystemView2D.ts](./AInstancedParticleSystemView2D.ts): View for the instanced 2D particle system, updating per-instance transforms and colors from the model's particle array.

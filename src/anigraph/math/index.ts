@@ -4,7 +4,7 @@
  * Specify this is a module comment and rename it to my-module:
  * @module amath
  */
-export * from "./TrasnformationInterface"
+export * from "./TransformationInterface"
 export * from "./linalg";
 export * from "./Precision";
 export * from "./Random";

@@ -16,7 +16,7 @@ import {APointLightModel3D, APointLightView3D} from "../../scene/lights";
 import {ARenderTarget} from "../../rendering/target/ARenderTarget";
 
 /**
- * Shared base for the starter scene controllers ({@link AppSceneController2D}, {@link AppSceneController3D}).
+ * Shared base for the starter scene controllers ({@link ASceneController2D}, {@link ASceneController3D}).
  * On top of {@link AGLSceneController} it:
  * - keeps the control panel's "InteractionMode" dropdown in sync with the controller's interaction modes,
  * - adds {@link ADebugInteractionMode} (3D fly/orbit camera) as the default interaction mode,
@@ -50,7 +50,7 @@ export abstract class ABasicSceneController extends AGLSceneController {
      * Registers model-view specs: which view class to create for each model class when a model is added to the scene.
      * Does nothing here; subclasses call `addModelViewSpec(ModelClass, ViewClass)`. The scene view
      * ({@link AGLSceneView}) already registers views for cameras (2D and 3D), group nodes (2D and 3D), point lights,
-     * and loaded models; {@link AppSceneController3D} adds a few more 3D defaults.
+     * and loaded models; {@link ASceneController3D} adds a few more 3D defaults.
      */
     initModelViewSpecs() {
         // This line tells the controller that whenever a _modelclass_ is added to the model hierarchy, we should create and add a corresponding _viewclass_ and connect it to the new model this.addModelViewSpec(_modelclass_, _viewclass_);

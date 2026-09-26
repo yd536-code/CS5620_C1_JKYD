@@ -1,4 +1,4 @@
-import {AppSceneModel2D} from "../../../anigraph/starter/App2D/AppSceneModel2D";
+import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
 import {ANodeModel, AppState, V2, Vec2} from "../../../anigraph";
 import {ArmModel, OrbitGroupModel, SpikyStarModel} from "./nodes";
 
@@ -16,7 +16,7 @@ import {ArmModel, OrbitGroupModel, SpikyStarModel} from "./nodes";
  *         └── three moons
  * ```
  */
-export class HierarchyAndAnimationSceneModel extends AppSceneModel2D{
+export class HierarchyAndAnimationSceneModel extends ASceneModel2D{
     star!: SpikyStarModel;
     arm!: ArmModel;
     orbit!: OrbitGroupModel;
