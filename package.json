@@ -39,6 +39,7 @@
   },
   "scripts": {
     "start": "craco start",
+    "clean": "node -e \"require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});console.log('Cleared node_modules/.cache. Now restart the dev server.')\"",
     "build": "craco build",
     "test": "craco test",
     "testall": "craco test --watchAll",
