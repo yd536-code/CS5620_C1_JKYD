@@ -1,0 +1,9 @@
+# Pixel Data
+
+CPU-side pixel storage for the data textures in [../](../README.md), kept separate from the `THREE.DataTexture` wrapper so pixel data can be built/edited in plain typed arrays before ever touching the GPU. `PixelData<T>` is the shared base: it stores a flat typed-array buffer (`data`), `width`/`height`, and a channel count, and does nearest-neighbor `getPixelNN`/`setPixelNN` lookups by treating the buffer as a row-major `width × height × nChannels` block; it also exposes the Three.js format/type (`_threeformat`/`_threetype`) a subclass should upload as. `PixelDataFloat1D` and `PixelDataFloat4D` are the two concrete subclasses actually used — single-channel (`THREE.RedFormat`) and four-channel RGBA (`THREE.RGBAFormat`) `Float32Array` buffers, respectively; both build one directly from raw data with the inherited `CreateBlock(width, height, data)` factory. `ADataTexture` and its subclasses in [../](../README.md) hold one of these and upload it to a `THREE.DataTexture` when `needsUpdate` is set.
+
+## Contents:
+- [./PixelData.ts](./PixelData.ts): Base pixel data class parameterized on an `ArrayBufferView` type. Stores `data`, `width`, `height`, and channel count, and provides nearest-neighbor pixel lookup.
+- [./PixelDataFloat1D.ts](./PixelDataFloat1D.ts): Single-channel `Float32Array` pixel buffer with `THREE.RedFormat` / `THREE.FloatType` mapping.
+- [./PixelDataFloat4D.ts](./PixelDataFloat4D.ts): Four-channel RGBA `Float32Array` pixel buffer with `THREE.RGBAFormat` / `THREE.FloatType` mapping. Both Float classes use `PixelData`'s inherited `CreateBlock(width, height, data)` factory.
+- [./index.ts](./index.ts): Barrel export for the pixeldata module.

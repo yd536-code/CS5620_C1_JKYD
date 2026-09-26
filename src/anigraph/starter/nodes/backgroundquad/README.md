@@ -1,0 +1,6 @@
+# Background Quad
+
+A single-file starter node for full-screen imagery — background photos, skyboxes drawn as a flat backdrop, or screen-space post-processing quads. `ABackgroundQuadModel3D` extends `AMeshModel3D` and starts as a simple quad at normalized device corners (±1, ±1) with 0–1 UVs; once linked to a scene's `ACameraModel3D` (via `setCameraModel`/the `CreateForCameraModel` factory), it subscribes to the camera's change events and, on every update, unprojects those four NDC corners through the inverse of the camera's projection-view matrix at a fixed near depth — so the quad's world-space vertices are recomputed to exactly fill the view frustum at that depth, keeping it perfectly screen-aligned as the camera moves or the window resizes. Being a plain triangle mesh under the hood, it renders through the same [../../../scene/nodes/trianglemesh/](../../../scene/nodes/trianglemesh/README.md) view/graphic path as any other mesh node — the "background" behavior comes entirely from this per-frame vertex recomputation, not from special-cased rendering.
+
+## Contents:
+- [./ABackgroundQuadModel3D.ts](./ABackgroundQuadModel3D.ts): Triangle mesh model with four vertices at normalized device corners (±1, ±1) and UV coordinates 0–1. Subscribes to camera model changes so the quad stays aligned with the view frustum.

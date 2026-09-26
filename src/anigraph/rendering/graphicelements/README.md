@@ -1,0 +1,21 @@
+# Graphic Elements
+
+The concrete, drawable Three.js shapes that node views actually attach to the scene — where [../graphicobject/](../graphicobject/README.md) defines the abstract `AGraphicElement`/`AGraphicGroup` machinery, this directory is almost entirely classes that extend `AGraphicElement` (or, for GPU-instanced rendering, `AInstancedGraphic`/`AInstancedGraphicBase`) to wrap one specific kind of geometry and sync it to a `THREE.BufferGeometry`/`Material`. `ATriangleMeshGraphic` and `APolygonGraphic2D` are the general-purpose workhorses — they build a mesh directly from a `VertexArray3D`/`VertexArray2D` (see [../../geometry/](../../geometry/README.md)) and re-sync per-vertex data (position, color, uv) whenever it changes — while `APlaneGraphic3D` and `ASphereGraphic3D` build fixed procedural shapes instead of taking arbitrary vertex data. `ALineGraphic`/`ALineSegmentsGraphic` render continuous or disconnected lines with configurable screen-space width via Three.js's `Line2`/`LineSegments2`, and `ACoordinateAxesGraphic3D`, `ArrowGraphic2D`, `GridGraphic`, and `HandleGraphic2D` are small composite/utility graphics (axes, arrows, grids, 2D control-point handles) built out of those line and polygon primitives — mostly useful for debugging and editing UI rather than final scene content. `AInstancedGraphic`/`AInstancedGraphicBase` provide the shared `THREE.InstancedMesh` plumbing that [../../effects/particles/InstancedParticles/](../../effects/particles/InstancedParticles/README.md)'s `AInstancedParticleSystemGraphic3D` builds on to render many copies of one shape efficiently in a single draw call (`BasicParticleGraphic`, despite the name, is unrelated — it's just a small `APolygonGraphic2D` convenience with a `setColor` shortcut, drawing one non-instanced particle-like shape), and `AGLMeshGraphic` is an escape hatch for wrapping an arbitrary, already-constructed Three.js mesh as a graphic element.
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Tests for the line graphics, instanced graphics and `APolygonGraphic2D` texture matrices.
+- [./ACoordinateAxesGraphic3D.ts](./ACoordinateAxesGraphic3D.ts): Renders a set of coordinate axes as colored line segments. Extends `ALineSegmentsGraphic`, which supplies all the line geometry/color/width machinery; this class only builds the three axes and owns its line material.
+- [./AInstancedGraphic.ts](./AInstancedGraphic.ts): Abstract instanced graphic backed by a `THREE.InstancedMesh` with per-instance color and transform updates.
+- [./AInstancedGraphicBase.ts](./AInstancedGraphicBase.ts): Base class for instanced graphics providing common instanced-mesh management.
+- [./ALineGraphic.ts](./ALineGraphic.ts): Renders a single continuous line using Three.js `Line2` and `LineGeometry` for configurable screen-space width.
+- [./ALineSegmentsGraphic.ts](./ALineSegmentsGraphic.ts): Renders disconnected line segments using `LineSegments2` and `LineSegmentsGeometry`.
+- [./APlaneGraphic3D.ts](./APlaneGraphic3D.ts): Renders a Three.js `PlaneBufferGeometry` quad with configurable dimensions and material.
+- [./APolygonGraphic2D.ts](./APolygonGraphic2D.ts): Renders a 2D polygon mesh from a `VertexArray2D` with per-vertex colors.
+- [./ASphereGraphic3D.ts](./ASphereGraphic3D.ts): Renders a sphere mesh of configurable radius.
+- [./AGLMeshGraphic.ts](./AGLMeshGraphic.ts): Graphic element backed by an arbitrary Three.js mesh type.
+- [./ATriangleMeshGraphic.ts](./ATriangleMeshGraphic.ts): Renders a triangle mesh from a `VertexArray3D` or `VertexArray2D`, with per-vertex data sync to a `THREE.BufferGeometry`.
+- [./ArrowGraphic2D.ts](./ArrowGraphic2D.ts): Composite graphic rendering a 2D arrow (shaft + arrowhead) using line graphics.
+- [./BasicParticleGraphic.ts](./BasicParticleGraphic.ts): Minimal 2D particle graphic extending `APolygonGraphic2D` with a `setColor` shortcut.
+- [./GridGraphic.ts](./GridGraphic.ts): Renders a configurable 2D grid as line segments.
+- [./HandleGraphic2D.ts](./HandleGraphic2D.ts): Small circular handle graphic for 2D control points, rendered as a unit circle polygon.
+- [./index.ts](./index.ts): Barrel export for the graphicelements module.

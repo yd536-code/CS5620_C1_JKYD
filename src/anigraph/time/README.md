@@ -1,0 +1,10 @@
+# Time
+
+This module supplies the clock that drives AniGraph's animation/render loop, plus a small helper for animating values over time. `ASystemTime` is the lowest layer: a reactive object (`_ASystemTime`) that polls `Date.now()` on an interval so a `time` state variable stays current and subscribable. `AClock` sits on top of it as the per-scene animation clock actually used by controllers — it tracks elapsed time as a reactive `AObjectState`, supports pausing/unpausing, and fires subscriber callbacks on each tick so node views and effects can advance their animation state each frame. `ATimeInterpolation` is unrelated to the clock's bookkeeping; it's an abstract class for animating a value between a start and end over a fixed time window, using a configurable Bezier easing function (see [../geometry/BezierTween.ts](../geometry/README.md)) to shape the interpolation curve.
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Jest tests for the clock, the system timer, and `ATimeFilter`.
+- [./AClock.ts](./AClock.ts): Reactive animation clock. Tracks elapsed time as an `AObjectState` (`time`, updated on each system-time tick), supports pause/unpause, and fires time-update subscriptions. `currentTime` reads the clock's time right now instead of at the last tick; the starter controllers pass it to `model.timeUpdate` each frame so motion doesn't stutter. Also runs timed actions: `CreateTimedAction` (whose last call always has the final progress) and `addTimedActionTo(owner, ...)`, the shared implementation of the `addTimedAction` methods on scene models, controllers and node models.
+- [./ASystemTime.ts](./ASystemTime.ts): Low-level system time object (`_ASystemTime`) that polls `Date.now()` every `_ASystemTime.TickIntervalMS` milliseconds (default 16) to keep a reactive `time` state variable up to date.
+- [./ATimeInterpolation.ts](./ATimeInterpolation.ts): Abstract time interpolation class for animating values between a start and end over a time window, using a configurable Bezier tween easing function.
+- [./index.ts](./index.ts): Barrel export for the time module.

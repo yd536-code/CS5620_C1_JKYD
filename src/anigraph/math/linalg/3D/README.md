@@ -1,0 +1,10 @@
+# 3D Linear Algebra Classes
+
+Concrete 3D vector and matrix types, extending the shared [../](../README.md) bases. `Vec4` (extends `VectorBase`) represents both 3D homogeneous points and direction vectors, and `Mat4` (extends `Matrix`, implements `TransformationInterface`) provides 3D affine and projective transforms (translation, rotation, scale, plus perspective and orthographic projection factories) as 4x4 matrix-vector multiplication against it. `Quaternion` is the odd one out — rather than building its own rotation math, it directly extends `THREE.Quaternion` and adds conversions from axis-angle, rotation matrices, and camera look/up orientation vectors, so 3D rotations throughout AniGraph interoperate with Three.js's own rotation representation. It uses the standard convention, the same as three.js: a rotation by `θ` about the unit axis `a` is stored as `(sin(θ/2)·a, cos(θ/2))`, so a `Quaternion` holds the same x, y, z, w as the matching `THREE.Quaternion`, and `a.times(b)` follows matrix order (`b` is applied first, so `a.times(b).Mat4()` equals `a.Mat4().times(b.Mat4())`). This is the 3D counterpart to [../2D/](../2D/README.md); node transforms for 3D scene nodes and the perspective/orthographic cameras (see [../../nodetransforms/](../../nodetransforms/README.md) and [../../camera/](../../camera/README.md)) are built from these types.
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Unit tests for the 3D linear algebra classes.
+- [./index.ts](./index.ts): Re-exports Vec4, Mat4, and Quaternion.
+- [./Mat4.ts](./Mat4.ts): 4x4 matrix class for 3D affine and projective transformations, including perspective, orthographic, translation, rotation, and scale factories.
+- [./Quaternion.ts](./Quaternion.ts): Quaternion class (extending THREE.Quaternion) for 3D rotations, with conversions from axis-angle, matrices, and camera orientation vectors.
+- [./Vec4.ts](./Vec4.ts): 4-element vector used for both 3D homogeneous points and direction vectors.

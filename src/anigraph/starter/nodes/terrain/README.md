@@ -1,0 +1,8 @@
+# Terrain
+
+A starter node for height-field terrain, meant to be subclassed rather than used directly — `ATerrainModel3D` is abstract, requiring subclasses to implement `getTerrainHeightAtPoint(xy)` to define the actual height function (procedural noise, a loaded heightmap image, etc.). The model stores plane dimensions (`width`/`height`) and subdivision counts (`widthSegments`/`heightSegments`, satisfying `PlaneGeometryParameters`), a diffuse color texture, and a `heightMap` stored as an `ADataTextureFloat1D` (see [../../../rendering/image/](../../../rendering/image/README.md)) so height data can be sampled by the GPU rather than only on the CPU; it lazily loads a shared `ATerrainShaderModel` (see [../../../rendering/shadermodels/](../../../rendering/shadermodels/README.md)) that displaces the mesh using that height-map texture. `ATerrainView3D` builds an `APlaneGraphic3D` subdivided to match the model's segment counts and keeps its geometry, texture, and transform in sync with the model each frame.
+
+## Contents:
+- [./ATerrainModel3D.ts](./ATerrainModel3D.ts): Abstract terrain model backed by `ATerrainShaderModel`. Stores `width`, `height`, segment counts, a diffuse map, and a 1D float height-map data texture. Subclasses generate the height data.
+- [./ATerrainView3D.ts](./ATerrainView3D.ts): View that creates an `APlaneGraphic3D` subdivided to match the model's segment counts and updates geometry and transforms each frame.
+- [./index.ts](./index.ts): Barrel export for the terrain module.

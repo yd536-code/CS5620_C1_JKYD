@@ -1,0 +1,11 @@
+# Character
+
+A ready-to-use 3D character node type for course/example scenes, in two flavors that share one interface and shader. `CharacterInterface` is the minimal contract (`mass`, `position`, `velocity`); `CharacterModel3D` (extends `ANodeModel3D`) implements it for procedurally-built characters and lazily loads a shared `CharacterShaderModel` the first time it's needed, while [./LoadedCharacter/](./LoadedCharacter/README.md) implements the same interface for characters built from an imported 3D asset instead. `CharacterShaderModel` (extending `StandardTexturedShaderModel` from [../../shaderModels/](../../shaderModels/README.md)) and its `CharacterMaterial` (extending Blinn-Phong from [../../../rendering/shadermodels/](../../../rendering/shadermodels/README.md)) add a `characterColor` uniform so any character — procedural or loaded — can be tinted per-instance via `setCharacterColor`. `CharacterView3D` is currently just an empty abstract base extending `AGLNodeView`, left for scene-specific character views to extend with their own rendering logic.
+
+## Contents:
+- [./LoadedCharacter/](./LoadedCharacter/README.md): Character variant backed by a loaded 3D asset rather than procedural geometry.
+- [./CharacterInterface.ts](./CharacterInterface.ts): Interface defining the minimum character contract: `mass`, `position` (Vec3), and `velocity` (Vec3).
+- [./CharacterModel3D.ts](./CharacterModel3D.ts): 3D node model for procedural characters. Uses `CharacterShaderModel` and supports per-character coloring via shader uniforms.
+- [./CharacterShaderModel.ts](./CharacterShaderModel.ts): Custom shader model for character rendering with a `setCharacterColor` uniform helper and `CharacterMaterial` subclass. `addInstanceGUISpecForMaterial` (called from `CreateMaterial`, guarded on `hasInstanceControlsFolderInGUI` -- see `AShaderModel.AddInstancesControlToGUI`, called once per model, not here) adds each created material's own color/`var1` controls as a nested subgroup of `getInstanceControlSpecGroup()`, one subgroup per instance (`"C0"`, `"C1"`, ...) — each control's `onChange` calls straight through to that specific material's own `setUniformColor`/`setUniform`.
+- [./CharacterView3D.ts](./CharacterView3D.ts): Abstract character view base class extending `ANodeView`.
+- [./index.ts](./index.ts): Barrel export for the character module.

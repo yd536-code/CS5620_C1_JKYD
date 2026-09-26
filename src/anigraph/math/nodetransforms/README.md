@@ -1,0 +1,12 @@
+# Node Transforms
+
+This is the "PRSA" (position/rotation/scale/anchor) parameterization every scene-graph node's transform is built from, rather than nodes storing a raw matrix directly — see the node models in [../../scene/nodeModel/](../../scene/nodeModel/README.md), which construct and mutate their transform through this interface. `NodeTransform` is the abstract, dimension-generic base (parameterized over a vector type and matrix type) defining the contract: get/set position, rotation, scale, and anchor, and compute the composed matrix (`getMatrix`) or a promoted `Mat4` (`getMat4`) for either dimension. `NodeTransform2D` implements this using `Vec2` position/anchor, a scalar rotation angle, and `Vec2`-or-scalar scale, composing them into a `Mat3` as P·R·S·(-A) (translate, then rotate, then scale, around an anchor point offset); `NodeTransform3D` is the analogous 3D implementation using `Vec3` position/anchor/scale and a `Quaternion` rotation, composing into a `Mat4` the same way.
+
+**From a matrix.** `setWithMatrix(m, position?, ...)`/`FromMatrix` decompose a matrix into PRSA: rotation and scale from its linear part, and the translation split by keeping the given position (or, by default, anchor = 0 and position = the translation). `TryFromMatrix(m, {position} | {anchor})` does the same but returns `undefined` when no PRSA reproduces `m` (shear, a 3D linear part that isn't a rotation times an axis scale, or a non-affine matrix); with `anchor`, it keeps that anchor and solves for the position (`m` applied to the anchor), which is what the node models' `setTransform` uses. Exactness is checked by comparing `getMatrix()` with `m` within `DecompositionTolerance(m)`. The best-effort `setWithMatrix` warns once per session on an inexact matrix.
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Unit tests for the node transform classes.
+- [./index.ts](./index.ts): Re-exports NodeTransform, NodeTransform2D, and NodeTransform3D.
+- [./NodeTransform.ts](./NodeTransform.ts): Abstract base class defining the interface for parameterized scene-graph transforms (position, rotation, scale, anchor).
+- [./NodeTransform2D.ts](./NodeTransform2D.ts): 2D transform parameterized as position, rotation angle, scale, and anchor; computes a Mat3 via P·R·S·(-A).
+- [./NodeTransform3D.ts](./NodeTransform3D.ts): 3D transform parameterized as position (Vec3), quaternion rotation, scale, and anchor; computes a Mat4 via P·R·S·(-A).

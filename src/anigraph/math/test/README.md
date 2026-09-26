@@ -1,0 +1,6 @@
+# Math Tests
+
+Shared Jest custom-matcher helpers used across the math unit tests in [../__tests__/](../__tests__/README.md), [../linalg/2D/__tests__/](../linalg/2D/__tests__/README.md), [../linalg/3D/__tests__/](../linalg/3D/__tests__/README.md), and [../nodetransforms/__tests__/](../nodetransforms/__tests__/README.md), so exact-vs-tolerant floating-point comparison logic (using `Precision.VECTOR_TEST_PRECISION` for the "close to" variants) is written once instead of duplicated in every test file. `AMathTestHelpers.js` defines `VecEqual`/`VecCloseTo` for vector types, `MatrixEqual`/`MatrixCloseTo` for matrix types, and `VertexArray2DToBeCloseTo`/`VertexArray2DCircToBeCloseTo` for comparing vertex arrays (the latter allowing for a circular shift, useful when comparing polygon vertex orderings that may start at a different index but represent the same shape).
+
+## Contents:
+- [./AMathTestHelpers.js](./AMathTestHelpers.js): Custom Jest matchers (`VecEqual`, `VecCloseTo`) for comparing AniGraph vector types in unit tests.

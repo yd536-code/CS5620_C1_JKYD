@@ -1,0 +1,12 @@
+# Starter Scene
+
+This is the layer that actually connects the core (backend-agnostic-in-spirit but Three.js-concrete-here) [../../scene/](../../scene/README.md) classes to a working app, and everything in [../App2D/](../App2D/README.md) and [../App3D/](../App3D/README.md) is built on top of it. `ABasicSceneController` extends `AGLSceneController` and wires interaction-mode switching to the GUI control panel via the shared helpers in [../interactionmodes/ControlPanelInteractionModeWiring.ts](../interactionmodes/README.md); `ABasicSceneModel` extends `ASceneModel` with a reactive `sceneScale`, `getTexture(name)` (a shortcut for `AssetManager.getTexture`), and asset-loading helpers built on `AssetManager` (see [../../fileio/](../../fileio/README.md)) — the kind of setup nearly every scene needs regardless of what it's actually depicting. `SingleModeSceneController` is a narrower abstract controller for the common case of an app with exactly one interaction mode, requiring only `onClick`/`onKeyDown`/`onKeyUp` rather than a full interaction-mode map.
+
+Both classes work for 2D and 3D scenes. The 3D-only setup (default model-view registrations for triangle meshes, unit quads, visible point lights and coordinate axes, the skybox helper, perspective-camera helpers, point lights, and the view light) is on [../App3D/](../App3D/README.md), and the orthographic camera setup is on [../App2D/](../App2D/README.md).
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Jest specs for the starter scene base classes.
+- [./ABasicSceneController.ts](./ABasicSceneController.ts): Concrete scene controller base providing interaction-mode helpers (`addDebugInteractionMode`, `switchToDebugInteractionMode`) and render-target/control-panel wiring. `initModelViewSpecs()` is an empty, overridable hook; the 3D-only default registrations are on `AppSceneController3D`.
+- [./ABasicSceneModel.ts](./ABasicSceneModel.ts): Concrete scene model base with a reactive `sceneScale`, `getTexture(name)` (delegates to `AssetManager.getTexture`), and asset-loading helpers built on `AssetManager`.
+- [./SingleModeSceneController.ts](./SingleModeSceneController.ts): Abstract controller for apps with exactly one interaction mode. Requires subclasses to implement `onClick`, `onKeyDown`, and `onKeyUp`.
+- [./index.ts](./index.ts): Barrel export for the starter scene module.

@@ -1,0 +1,16 @@
+# Interaction
+
+This module turns raw browser input into typed, named callbacks that scene controllers can subscribe to. `AInteraction` is the base class: it wraps `addEventListener`/`removeEventListener` on a target element and defines the `PointerEvents`/`DOMPointerEvents` enums used everywhere else in the module. Each concrete subclass (`AClickInteraction`, `AStaticClickInteraction`, `ADragInteraction`, `AWheelInteraction`) listens for one kind of gesture and exposes it as a simple start/move/end or single-shot callback — `ADragInteraction`, for example, tracks pointer-down/move/up to fire drag callbacks with cursor deltas, while `AStaticClickInteraction` filters out drags that moved too far to count as a click. `AInteractionMode` groups a set of these interactions behind one named, unified callback interface (`onKeyDown`, `onMouseMove`, `onDragStart`, `onClick`, etc.), and `AInteractionModeMap` is the dictionary a scene controller uses to register, switch between, and expose (to the GUI) its named modes — see [../scene/interactionmodes/](../scene/interactionmodes/README.md) and [../starter/interactionmodes/](../starter/interactionmodes/README.md) for the concrete modes built on top of this. `AMockInteractiveElement` stubs the `on`/`off`/`once` API for tests or non-DOM contexts, and [./DOM/](./DOM/README.md) holds interactions tied specifically to `document`-level DOM events (pointer move, keyboard) rather than a single canvas element.
+
+## Contents:
+- [./DOM/](./DOM/README.md): DOM-level pointer movement and keyboard interaction classes.
+- [./__tests__/](./__tests__/README.md): Jest specs for this module.
+- [./AClickInteraction.ts](./AClickInteraction.ts): Interaction class that listens for DOM `click` events and invokes a callback.
+- [./ADragInteraction.ts](./ADragInteraction.ts): Interaction class tracking pointer-down, pointer-move, and pointer-up to fire drag start/move/end callbacks with cursor positions.
+- [./AInteraction.ts](./AInteraction.ts): Base interaction class. Wraps an element's `addEventListener`/`removeEventListener` and defines `PointerEvents` and `DOMPointerEvents` enums used throughout the interaction system. `AInteractionEvent`'s `ndcCursor` is canvas-global; `ndcCursorForViewport` re-normalizes it into a given viewport's own `[-1, 1]` range (or `null` outside it), without this module depending on `../scene`'s `ARenderPass`.
+- [./AInteractionMode.ts](./AInteractionMode.ts): An interaction mode groups a set of `AInteraction` instances and exposes a unified callback interface (`onKeyDown`, `onMouseMove`, `onDragStart`, `onClick`, etc.) for named modes.
+- [./AInteractionModeMap.ts](./AInteractionModeMap.ts): Dictionary of named interaction modes for a controller, including GUI-selectable mode filtering.
+- [./AMockInteractiveElement.ts](./AMockInteractiveElement.ts): Stub interactive element that implements `on`/`off`/`once` for use in tests or non-DOM contexts.
+- [./AStaticClickInteraction.ts](./AStaticClickInteraction.ts): Click interaction that fires only when the pointer has not moved beyond a small allowance, distinguishing clicks from drag operations.
+- [./AWheelInteraction.ts](./AWheelInteraction.ts): Interaction class that fires a callback for mouse wheel events.
+- [./index.ts](./index.ts): Barrel export for the interaction module.

@@ -1,0 +1,6 @@
+# Material Copy View
+
+Normally a node's views all share one `AShaderMaterial` instance (mutating a uniform affects every view of that model at once); `AMaterialCopyView` is for the case where a second view of the same model needs its own independent material — e.g. rendering an extra debug/alternate pass with different uniforms without disturbing the model's main appearance. It's an abstract `AGLNodeView` subclass that clones the model's material via `AShaderMaterial.Clone` on init (releasing any previous copy first) and overrides `mainMaterial` to return that private `viewMaterial` instead of the model's own; `adjustViewMaterial()` is an empty hook meant to be overridden by subclasses to tweak the copy (e.g. enabling wireframe) right after cloning. It also re-clones and reapplies the material whenever the model's underlying material updates or changes, keeping the private copy in sync with the source material's base state.
+
+## Contents:
+- [./AMaterialCopyView.ts](./AMaterialCopyView.ts): Abstract view that clones the model's `AShaderMaterial` on initialization and overrides `mainMaterial` to return the copy. Useful when a second view needs different uniform values without affecting the original.

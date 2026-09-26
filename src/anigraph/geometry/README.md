@@ -1,0 +1,23 @@
+# Geometry
+
+This module defines the raw geometric data that node models attach to `AGeometrySet` and that node views turn into renderable buffers. `VertexArray` is the core abstraction: an abstract base managing named `VertexAttributeArray` slots (position, normal, color, uv) plus an optional triangle `VertexIndexArray`, specialized by `VertexArray2D` (homogeneous 2D positions, used by 2D nodes and `Polygon2D`) and `VertexArray3D` (positions/normals/colors/uv, with factory methods for common shapes like spheres). `BoundingBox`/`BoundingBox2D`/`BoundingBox3D` compute axis-aligned bounds from these vertex arrays via the shared `HasBounds` interface, which `AGeometrySet` uses to aggregate bounds across a node's geometry (vertex arrays and/or a loaded `AObject3DModelWrapper`) with a source transform, of which each loaded-model member gets its own copy. `LineSegment` and `Polygon2D` build higher-level 2D primitives on top of `VertexArray2D`, and `BezierTween` provides the easing curve used elsewhere for animation tweening. Together these classes are backend-agnostic — they hold plain typed-array data that Three.js- and Two.js-specific view code (in [../rendering/](../rendering/README.md)) converts into `THREE.BufferAttribute`s or Two.js paths.
+
+`VertexArray2D`/`VertexArray3D` are `@ASerializable`, and so are the classes that hold their data (via `VertexArray.attributes`/`.indices`): `VertexAttributeArray2D/3D/4D`, `VertexAttributeColor3DArray`, `VertexAttributeColorArray`, `VertexPositionArray2DH`, `VertexPositionArray3DH` and `VertexIndexArray`. Each subclass needs its own decoration: an undecorated subclass of a decorated class (`VectorBase`, which all of these extend) isn't serializable, and would be saved as a plain object. See [../base/aserial/](../base/aserial/README.md) and the round-trip test in `../base/aserial/__tests__/D3PrimitiveTypes.test.js`.
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Unit tests for the geometry module.
+- [./AGeometrySet.ts](./AGeometrySet.ts): Container for a named collection of `HasBounds` objects (e.g., vertex arrays and model wrappers) with a shared source transform. Used as the `geometry` property on node models.
+- [./AObject3DModelWrapper.ts](./AObject3DModelWrapper.ts): Wraps a loaded `THREE.Object3D` with an optional source transform, bounding-box computation, and material-setting helpers.
+- [./BezierTween.ts](./BezierTween.ts): Cubic Bezier easing function for animation tweening, based on the bezier-easing algorithm.
+- [./BoundingBox.ts](./BoundingBox.ts): Abstract bounding box base class; holds the members its 2D/3D subclasses share (`clone`, `boundVertexPositionArrray`, `boundBounds`, `boundPoint`, `pointInBounds`).
+- [./BoundingBox2D.ts](./BoundingBox2D.ts): 2D axis-aligned bounding box computed from a `VertexArray2D`.
+- [./BoundingBox3D.ts](./BoundingBox3D.ts): 3D axis-aligned bounding box computed from a `VertexArray3D`.
+- [./HasBounds.ts](./HasBounds.ts): Interface for objects that can compute a bounding box.
+- [./LineSegment.ts](./LineSegment.ts): 2D line segment with utilities for checking finiteness and computing the homogeneous line coefficient vector.
+- [./Polygon2D.ts](./Polygon2D.ts): 2D polygon geometry extending `VertexArray2D`, with support for colors and UV coordinates.
+- [./VertexArray.ts](./VertexArray.ts): Abstract base for typed vertex arrays, managing named `VertexAttributeArray` slots (position, normal, color, uv) and optional index buffers.
+- [./VertexArray2D.ts](./VertexArray2D.ts): Concrete 2D vertex array with homogeneous 2D positions and helpers for adding vertices, colors, UV, and querying bounds.
+- [./VertexArray3D.ts](./VertexArray3D.ts): Concrete 3D vertex array with positions, normals, colors, UV, and factory methods for common shapes (sphere, rendering-ready meshes).
+- [./VertexAttributeArray.ts](./VertexAttributeArray.ts): Typed attribute buffer classes for 2D, 3D, 4D, and color data, with Three.js `BufferAttribute` integration. The generic base reads each class's stride and vector type from its statics (`ElementsPerVertex`, `VertexClass`); the position/vector classes keep hand-indexed `getAt`/`setAt` because they are faster (see the benchmark in `__tests__/VertexAttributeArray.bench.test.ts`).
+- [./VertexIndexArray.ts](./VertexIndexArray.ts): Triangle index array with helpers for appending triangle index triples. `getAt(i)` returns the `i`th triangle's indices and `nElements` is the number of triangles (`nVerts` is a deprecated alias).
+- [./index.ts](./index.ts): Barrel export for the geometry module.

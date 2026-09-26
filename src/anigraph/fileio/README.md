@@ -1,0 +1,10 @@
+# FileIO
+
+This module is where external assets enter AniGraph and become engine-native objects. `AModelLoader3D` is a thin static wrapper around Three.js's `OBJLoader`/`PLYLoader`/`GLTFLoader` that loads a model file and normalizes the result into an `AObject3DModelWrapper` (see [../geometry/](../geometry/README.md)), regardless of which loader produced it. `AAssetManager` (exported as the `AssetManager` singleton) sits above that: apps register named assets in a `ModelDetails` dictionary (model path, associated texture paths, optional vertex-transform), and the manager loads them on demand, caches loaded textures by name (calling `loadTexture` again with the same name and path reuses the loaded texture; a different path, or `forceReload`, loads the file again), and also owns shader-source management (via `ShaderManager`/`AShaderSourceManager` in [../rendering/material/](../rendering/material/README.md)) so materials can be created from named shaders. [./svgl/](./svgl/README.md) is the SVG-specific counterpart to this — a separate loading/parsing pipeline for vector art rather than 3D models (named "SVGL" for "SVG for ThreeJS", since it's specifically the ThreeJS-scene SVG-rendering path, as opposed to Two.js's own separate SVG rendering backend).
+
+## Contents:
+- [./__tests__/](./__tests__/README.md): Jest tests for the asset manager and the 3D model loader.
+- [./svgl/](./svgl/README.md): SVG parsing, loading, and scene-node integration for ThreeJS scenes.
+- [./AModelLoader3D.ts](./AModelLoader3D.ts): Static loader class that wraps Three.js loaders (OBJLoader, PLYLoader, GLTFLoader for .obj, .ply, .glb, .gltf) and returns `AObject3DModelWrapper` instances.
+- [./AAssetManager.ts](./AAssetManager.ts): Singleton asset manager (`AssetManager`) that tracks model asset details (paths, textures, transforms), loads them on demand, caches textures by name (with a `forceReload` option), and manages shader sources.
+- [./index.ts](./index.ts): Barrel export for the fileio module.

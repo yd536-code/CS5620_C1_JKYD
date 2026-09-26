@@ -1,0 +1,11 @@
+# Particles
+
+Particle systems here follow the same model/view split as the rest of the scene graph, parameterized over a particle type `P` from [../../physics/particles/](../../physics/particles/README.md). `ParticleSystemModelInterface` is the minimal contract any particle system model must satisfy — an array of particles (`particles`/`nParticles`) plus a way to listen for updates (`addParticlesListener`) — implemented by `AParticleSystemModel2D` (extends `ANodeModel2D`, for 2D scenes; defaults to a `NodeTransform2D` transform, same as any other 2D node — see [../../scene/nodeModel/](../../scene/nodeModel/README.md)) and `AParticleSystemModel3D` (extends `ANodeModel3D`, for 3D scenes); both just hold a typed particle array and fire a `PARTICLES_UPDATED` event when it's signaled as dirty. `AParticleSystemView3D` is the shared abstract view: it owns a graphic group, subscribes to the model's particle-update event, and delegates the actual per-frame instance data (position, color, transform) to an [./InstancedParticles/](./InstancedParticles/README.md) graphic via the abstract `updateParticles()`/`createParticlesElement()` methods each concrete particle-system subclass must implement.
+
+## Contents:
+- [./InstancedParticles/](./InstancedParticles/README.md): GPU-instanced particle system using `THREE.InstancedMesh` for efficient rendering of large numbers of particles.
+- [./AParticleSystemModel2D.ts](./AParticleSystemModel2D.ts): 2D particle system model extending `ANodeModel2D`. Stores a typed array of particles and fires `PARTICLES_UPDATED` events.
+- [./AParticleSystemModel3D.ts](./AParticleSystemModel3D.ts): 3D particle system model extending `ANodeModel3D`. Base class for 3D particle systems with particle arrays and update signaling.
+- [./AParticleSystemView3D.ts](./AParticleSystemView3D.ts): Abstract view for particle systems. Owns the particle graphic group and subscribes to model particle-update events to trigger re-renders.
+- [./ParticleSystemModelInterface.ts](./ParticleSystemModelInterface.ts): Interface defining the minimal contract any particle system model must satisfy (`particles`, `nParticles`, `addParticlesListener`).
+- [./index.ts](./index.ts): Barrel export for the particles module.

@@ -1,0 +1,9 @@
+# Components
+
+This module is the bridge between AniGraph's plain-TypeScript rendering/scene layer and React: it provides the components that mount a render window into the DOM and drive the GUI panel from [../appstate/](../appstate/README.md). `AGLContextComponent` and `ATwoJSContextComponent` are backend-specific counterparts — each creates its respective render window (`AGLRenderWindow` or `ATwoJSRenderWindow`), mounts it into a styled div, and starts that backend's render loop on mount; `src/Component/AContextComponent.tsx` at the app level picks between the two based on the active scene controller's `contextType`, so most apps never import these directly. `ControlPanel` renders the Leva-based GUI panel driven by the current `AAppState`'s control specs, subscribing to app-state changes so the panel re-renders whenever a spec is added, removed, or updated elsewhere in the app.
+
+## Contents:
+- [./AGLContextComponent.tsx](./AGLContextComponent.tsx): React component that mounts an `AGLRenderWindow` into a DOM div and starts the render loop. Wraps the Three.js canvas in a styled container with optional children.
+- [./ATwoJSContextComponent.tsx](./ATwoJSContextComponent.tsx): Two.js counterpart: mounts an `ATwoJSRenderWindow` into a DOM div and starts its render loop. (`src/Component/AContextComponent.tsx` picks between the two based on the scene controller's `contextType`.)
+- [./ControlPanel.tsx](./ControlPanel.tsx): React component that renders a Leva control panel driven by the current `AAppState` GUI control specs. Subscribes to app state changes and re-renders the panel when specs change — deliberately without ever remounting Leva's underlying store (see the file's own comments), since remounting recreates that store empty and discards every control's live value.
+- [./index.ts](./index.ts): Barrel export for the components module.

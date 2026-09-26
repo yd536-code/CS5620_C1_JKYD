@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "//": "Engine-only compile gate: type-checks src/anigraph and nothing else, so engine errors can be told apart from errors in scene code. Run with `npx tsc --noEmit -p tsconfig.engine.json`.",
+  "include": ["src/anigraph"]
+}
