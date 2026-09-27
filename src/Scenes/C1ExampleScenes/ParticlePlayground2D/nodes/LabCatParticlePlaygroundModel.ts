@@ -31,7 +31,8 @@ const DIRECT_MOVE_STEP_SECONDS = 0.1;
  * This one model holds everything the playground does:
  * - `emitter`: Lab Cat, which you move with the WASD keys. Particles are emitted from Lab Cat's position.
  * - `particleSystem`: the particles themselves.
- * - the per-frame update (`timeUpdate`), which moves Lab Cat and then calls `updateParticles`.
+ * - the per-frame update (`timeUpdate`), which moves Lab Cat (with the motionState checkbox on) and then calls
+ *   `updateParticles`.
  * - the keyboard handlers (`onKeyDown`/`onKeyUp`), which the scene controller forwards key presses to.
  * - the control-panel sliders (`SetAppState`).
  *
@@ -81,8 +82,9 @@ export class LabCatParticlePlaygroundModel extends AGroupNodeModel2D{
     lastTime?: number;
 
     /**
-     * Lab Cat's velocity, in world units per second. The WASD keys set it (see `onKeyDown`/`onKeyUp`), and
-     * `timeUpdate` moves Lab Cat by `velocity * dt` every frame.
+     * Lab Cat's velocity, in world units per second. With the motionState checkbox on, the WASD keys set it (see
+     * `onKeyDown`/`onKeyUp`), and `timeUpdate` moves Lab Cat by `velocity * dt` every frame. With it off, the keys
+     * move Lab Cat directly instead (see `onKeyDown`).
      */
     emitterVelocity: Vec2 = V2(0, 0);
 
@@ -90,10 +92,10 @@ export class LabCatParticlePlaygroundModel extends AGroupNodeModel2D{
      * Adds this model's sliders and color picker to the control panel. Add your own controls here, for example a
      * lifespan slider for your particles. `addSliderIfMissing(name, initialValue, min, max, step)` adds a slider.
      *
-     * This is static, and the scene model calls it from `initAppState`, because controls must exist before the
-     * control panel is first drawn. The panel sizes itself to the controls it has at that point, and controls added
-     * later (for example, from this model's constructor) are cut off. `initAppState` runs before the panel is drawn
-     * and before any playground exists, so the function can't belong to an instance.
+     * This is static, and the scene model calls it from `initAppState`, because controls should exist before the
+     * control panel is first drawn: controls added later (for example, from this model's constructor) may not fit in
+     * the panel. `initAppState` runs before the panel is drawn and before any playground exists, so the function
+     * can't belong to an instance.
      * @param appState the app state passed to the scene model's `initAppState`
      */
     static SetAppState(appState: AppState){
@@ -192,14 +194,17 @@ export class LabCatParticlePlaygroundModel extends AGroupNodeModel2D{
     }
 
     /**
-     * **Student code.** Called once per frame with the current time `t`. It should:
+     * **Student code.** Called once per frame with the current time `t` and the time since the previous frame `dt`.
+     * It should:
      * 1. emit every particle whose `t0` is -1 (see `fire()`), and
      * 2. update every visible particle: its motion, lifespan, color, size, and so on.
      *
      * This minimal version only does step 1, so emitted particles stay still forever.
      * @param t the current time, in seconds
+     * @param dt the time since the previous frame, in seconds (0 on the first frame). Use it for anything that
+     *   should happen at a steady rate, such as emitting a number of particles per second.
      */
-    updateParticles(t: number){
+    updateParticles(t: number, dt: number){
         // Reading the control panel: getState(name) returns the slider's current value. Read the values once per
         // frame, here at the top, rather than once per particle. They aren't used yet; they're here for your code.
         const appState = GetAppState();
@@ -280,7 +285,8 @@ export class LabCatParticlePlaygroundModel extends AGroupNodeModel2D{
     }
 
     /**
-     * The per-frame update. Moves Lab Cat by its velocity, then updates the particles.
+     * The per-frame update. Moves Lab Cat by its velocity, then updates the particles, passing on the time since the
+     * previous frame.
      * @param t the current time, in seconds
      */
     timeUpdate(t: number, ...args: any[]){
@@ -301,6 +307,6 @@ export class LabCatParticlePlaygroundModel extends AGroupNodeModel2D{
 
         // Record the frame time for emit(), then update the particles.
         this.time = t;
-        this.updateParticles(t);
+        this.updateParticles(t, dt);
     }
 }

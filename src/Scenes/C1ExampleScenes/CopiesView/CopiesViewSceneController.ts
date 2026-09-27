@@ -26,7 +26,7 @@ export class CopiesViewSceneController extends ASceneController2D{
      * Pairs each model class with the view class that draws it.
      */
     initModelViewSpecs(){
-        super.initModelViewSpecs();   // keeps the built-in specs (camera, group nodes)
+        super.initModelViewSpecs();   // keeps specs a parent class adds; camera and group-node specs are built in
         this.addModelViewSpec(RowOfCopiesModel, RowOfCopiesView);
     }
 

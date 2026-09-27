@@ -24,7 +24,7 @@ LabCatParticlePlaygroundModel           ← all the behavior; your code goes her
 ### What happens each frame
 1. The controller calls the scene model's `timeUpdate(t)`, which calls the playground's `timeUpdate(t)`.
 2. The playground moves Lab Cat by its velocity: `position += velocity * dt`. Pressing w/a/s/d sets the velocity in that direction, and releasing the key stops motion in that direction. (This is with the **motionState** checkbox on; with it off, each w/a/s/d press moves Lab Cat one step directly and releasing does nothing.)
-3. The playground calls `updateParticles(t)` (your code), which emits pending particles and updates the rest.
+3. The playground calls `updateParticles(t, dt)` (your code), which emits pending particles and updates the rest.
 4. `updateParticles` calls `signalParticlesUpdated()`, and the particle view copies the new positions, sizes and colors to the GPU.
 
 ### How a particle gets emitted

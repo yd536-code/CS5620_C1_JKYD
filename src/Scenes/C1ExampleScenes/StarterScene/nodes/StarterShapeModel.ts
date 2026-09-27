@@ -46,8 +46,8 @@ export class StarterShapeModel extends ANodeModel2D{
 
     /**
      * Adds this node's controls to the control panel. The scene model calls it from `initAppState`.
-     * It is static because `initAppState` runs before any node exists, and it has to run then: the control panel
-     * sizes itself to the controls it has when it is first drawn.
+     * It is static because `initAppState` runs before any node exists. Controls belong there, before the control
+     * panel is first drawn: controls added later may not fit in the panel.
      * @param appState
      */
     static SetAppState(appState: AppState){

@@ -35,7 +35,7 @@ export class StarterSceneController extends ASceneController2D{
      * needs its own entry, even a subclass of one that already has one.
      */
     initModelViewSpecs(){
-        super.initModelViewSpecs();   // keeps the built-in specs (camera, group nodes)
+        super.initModelViewSpecs();   // keeps specs a parent class adds; camera and group-node specs are built in
         this.addModelViewSpec(StarterShapeModel, StarterShapeView);
     }
 
@@ -64,7 +64,8 @@ export class StarterSceneController extends ASceneController2D{
                         this.model.onClick(cursor);
                     }
                 },
-                // To handle dragging, forward the cursor to a model method in the same way, for example:
+                // To handle dragging, forward the cursor to a model method in the same way, for example (first add an
+                // `onDrag(worldPoint: Vec2)` method to the scene model, like its `onClick`):
                 onDragStart: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
                 onDragMove: (event: AInteractionEvent, interaction: ADragInteraction)=>{
                     // const cursor = this.getWorldCoordinatesOfCursorEvent(event);

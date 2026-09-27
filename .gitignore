@@ -2,12 +2,13 @@
 
 #public/
 
-yarn.lock
+# yarn.lock is committed: it pins every library to the version the starter code was tested with. Install with
+# yarn. npm's lockfile isn't used.
+package-lock.json
 
 .idea
 
 *.zip
-# yarn.lock is necessary to make sure we are using the correct library version
 
 junit.xml
 

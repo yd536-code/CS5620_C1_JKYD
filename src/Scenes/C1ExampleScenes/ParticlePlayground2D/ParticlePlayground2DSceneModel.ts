@@ -12,7 +12,7 @@ export class ParticlePlayground2DSceneModel extends ASceneModel2D{
 
     /**
      * Adds the control-panel sliders. This runs first, before assets load and before the control panel is drawn.
-     * Controls added any later don't fit in the panel. The playground defines its own sliders; we just ask it to add
+     * Controls added later may not fit in the panel. The playground defines its own sliders; we just ask it to add
      * them.
      * @param appState
      */

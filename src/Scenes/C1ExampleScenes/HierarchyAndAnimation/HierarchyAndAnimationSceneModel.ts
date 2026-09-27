@@ -22,8 +22,8 @@ export class HierarchyAndAnimationSceneModel extends ASceneModel2D{
     orbit!: OrbitGroupModel;
 
     /**
-     * Adds the control-panel controls. Every control has to be added here (directly or through a node class's static
-     * `SetAppState`), because the panel sizes itself to the controls it has when it is first drawn.
+     * Adds the control-panel controls. Add every control here (directly or through a node class's static
+     * `SetAppState`): this runs before the panel is first drawn, and controls added later may not fit in the panel.
      * @param appState
      */
     initAppState(appState: AppState){

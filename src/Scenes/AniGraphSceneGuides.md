@@ -31,6 +31,6 @@ Keep in the controller the things that really are about input or rendering: focu
 
 ## Control-panel controls: add them in `initAppState`
 
-Add control-panel controls (sliders, color pickers, checkboxes) in the scene model's `initAppState` when possible. It runs before the control panel is first drawn, so every control is there from the start. With React StrictMode on (`MainAppConfigs.USE_STRICT_MODE` in `MainApp.tsx`), this matters more: the panel then keeps the height it had when first drawn, so controls added later (for example, from `initScene` or a node's constructor) are cut off below the visible area. StrictMode is off by default, which avoids that.
+Add control-panel controls (sliders, color pickers, checkboxes) in the scene model's `initAppState`. It runs before the control panel is first drawn, so every control is there from the start. Controls added later (for example, from `initScene` or a node's constructor) may not fit in the panel. With React StrictMode on (`MainAppConfigs.USE_STRICT_MODE` in `MainApp.tsx`), they are cut off below the visible area, because the panel keeps the height it had when first drawn; StrictMode is off by default.
 
 If a node owns its controls, give it a static function that adds them, for example `static SetAppState(appState)`, and call it from the scene model's `initAppState`. A static function is needed because no node instances exist yet when `initAppState` runs.

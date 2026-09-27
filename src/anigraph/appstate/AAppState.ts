@@ -63,8 +63,8 @@ export enum AppStateEvents{
  * Typical use: register controls in your scene model's {@link ASceneModel.initAppState} with
  * `addSliderControl`, `addCheckboxControl`, `addColorControl`, `setSelectionControl`, `addButton`, or
  * `addControlSpecGroup`, then react to them with `addStateValueListener` (or read them with `getState`).
- * Add controls in `initAppState`: controls added later (e.g. during `initScene` or in response to events) can
- * end up cut off in the panel.
+ * Add controls in `initAppState`: controls added later (e.g. during `initScene` or in response to events) may
+ * not fit in the panel.
  *
  * {@link AppState} is the concrete subclass the app actually creates.
  */
