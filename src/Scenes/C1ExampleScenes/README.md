@@ -10,3 +10,5 @@
 - [./CopiesView](./CopiesView/README.md): A custom view that draws many copies of its model's shape (one graphic per copy, rebuilt when the count changes), with each copy's transform and color computed by the model.
 - [./MouseInput](./MouseInput/README.md): Every kind of mouse input (hover, drag by a delta, shift-drag, right-click, drag end) and two interaction modes of your own, Edit and Create.
 - [./AttachAndDetach](./AttachAndDetach/README.md): Moving a node to a new parent without moving it on screen: click a moon to take it out of a turning, scaled orbit, or put it back.
+- [./TutorialScene](./TutorialScene/README.md): An empty scene to build up, one small demo per docs section, as you work through the C1 docs' Tutorial.
+- [./TutorialSceneComplete](./TutorialSceneComplete/README.md): The tutorial scene with every step done: a workbench of small, separate demos. Run it or compare with it, but don't import from it.
