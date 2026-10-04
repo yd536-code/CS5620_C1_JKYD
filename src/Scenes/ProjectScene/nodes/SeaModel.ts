@@ -1,19 +1,133 @@
-import {ANodeModel2D, ASerializable, AssetManager, Color, Polygon2D, V2} from "../../../anigraph";
+import {
+    ASerializable,
+    Color,
+    LineModel2D,
+    V2
+} from "../../../anigraph";
+import {WaterSample} from "./WaterSurface";
 
 @ASerializable("SeaModel")
-export class SeaModel extends ANodeModel2D {
-    constructor() {
-        super();
-        this.setVerts(SeaModel.makeSea());
-        this.setMaterial(AssetManager.Create2DRGBAMaterial());
+export class SeaModel extends LineModel2D {
+    static Density = 1000;  // water: kg/m3
+    static SeaDepth= 10;    // made 'static' for later extension
+    static SeaHalfWidth = SeaModel.SeaDepth; // width of sea shape
+    static SeaColor = Color.FromString("#4587f8");
+
+    static WaveSpeed = 1.5;
+    static WaveAmplitude = 0.5;
+    static Wavelength = 4;
+
+    static NSpacing = 0.15;
+    static NSamples = 1 + Math.floor(2 * SeaModel.SeaHalfWidth / SeaModel.NSpacing);
+
+    static time = 0;
+    static ripple= new Float32Array(SeaModel.NSamples);
+    static YVelocity= new Float32Array(SeaModel.NSamples);
+    static pending= new Float32Array(SeaModel.NSamples); // pending change due to the boat
+
+    xForIdxOf(idx : number): number{
+        return idx * SeaModel.NSpacing - SeaModel.SeaHalfWidth
     }
 
-    static makeSea(seaWidth:number = 200, seaDepth:number = 100): Polygon2D{
-        // CreateForRendering(true) gives the polygon a color attribute, so each vertex can have its own color.
-        let theSea = Polygon2D.CreateForRendering(true);
-        for (let i = 0; i < 4; ++i)
-            theSea.addVertex(V2( -seaWidth/2 + (i&1)*seaWidth, -((i >> 1) & 1) * seaDepth ),
-                Color.FromString("#67ceef"));
-        return theSea;
+    constructor() {
+        super();
+        for (let i = 0; i < SeaModel.NSamples; ++i) {
+            const x = this.xForIdxOf(i);
+            this.verts.addVertex(V2(x,0),
+                Color.FromString("#4587f8"));
+        }
+        this.lineWidth = 0.01;
+    }
+
+    // Advance water
+    updateWater(t: number, dt: number) {
+        const waveSpeed = SeaModel.WaveSpeed;   // wave propagation velocity (m/s)
+        const waveAmp = SeaModel.WaveAmplitude; // wave amplitude (m)
+        const lambda = SeaModel.Wavelength;     // wavelength (m)
+        const dx2 = SeaModel.NSpacing**2;       // squared spatial resolution (Δx)²
+
+        // Formulas from (https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models)
+        // I asked ChatGPT to point me to relevant equations.
+        for (let i = 1; i < SeaModel.NSamples; ++i) {
+            // 1. Spatial curvature (1D Discrete Laplacian)
+            const curvature = (
+                SeaModel.ripple[i-1] - 2*SeaModel.ripple[i] + SeaModel.ripple[i+1]
+            ) / dx2;
+
+            // 2. Boundary absorption (suppress edge reflection)
+            const dist2center = Math.abs(this.xForIdxOf(i));
+            const dampBound = 90;   // as X spans [-100,100], let the bound be |X| > dampBound
+            const dampCoef = 10;    // smooth out velocity reduction due to damping
+            const edgeDamp = Math.max(0,
+                (dist2center - dampBound)/dampCoef
+            );
+
+            // 3. Acceleration: wave propagation - equilibrium pull - damping
+            const waveAccel    = (waveSpeed**2) * curvature;
+            const restoreAccel = -5 * SeaModel.ripple[i];
+            const dampAccel    = -(1.5 + 5 * edgeDamp) * SeaModel.YVelocity[i];
+
+            // 4. Integrate Accels' and apply external boat impulses
+            const netAccel = waveAccel + restoreAccel + dampAccel;
+            SeaModel.YVelocity[i] += (netAccel*dt) + SeaModel.pending[i];
+        }
+        // 5. Integrate height's
+        for (let i = 1; i < SeaModel.NSamples - 1; ++i)
+            SeaModel.ripple[i] += SeaModel.YVelocity[i] * dt;
+        SeaModel.pending.fill(0);   // Reset queued boat impulses
+
+        // 6. Update rendered sea-surface-outline to View
+        for (let i = 0; i < SeaModel.NSamples; ++i) {
+            const x = this.xForIdxOf(i);
+            const k = 2 * Math.PI / lambda;
+            const y = waveAmp * Math.sin(k * (x - waveSpeed * t)) + SeaModel.ripple[i];
+            this.verts.position.setAt(i, V2(x,y));
+        }
+        this.signalGeometryUpdate();  // tell the view to re-draw
+    }
+
+    sampleWaterAtX(X: number, t: number): WaterSample {
+        const localX = X - this.transform.getPosition().x;
+        const k = 2 * Math.PI / SeaModel.Wavelength;
+        const cur_idx = (localX + SeaModel.SeaHalfWidth) / SeaModel.NSpacing; // "exact" index w/ decimals
+
+        // clamp to keep (prev_idx+1) valid
+        const pre_idx = Math.min(SeaModel.NSamples-2, Math.floor(cur_idx)); // previous, integer index
+        const lerp = cur_idx - pre_idx;
+
+        const pre_vert = this.verts.vertexAt(pre_idx);
+        const suf_vert = this.verts.vertexAt(pre_idx+1);
+
+        // Interpolate the water level
+        const heightInterpolated = this.transform.getPosition().y
+                                         + pre_vert.y * (1 - lerp)
+                                         + suf_vert.y * lerp;
+
+        const slope = (suf_vert.y - pre_vert.y)/SeaModel.NSpacing;
+        const carrierYVelocity = (idx: number): number=> {
+            const vert_x = this.xForIdxOf(idx);
+            return -SeaModel.WaveAmplitude * k * SeaModel.WaveSpeed * Math.cos(k * (vert_x - SeaModel.WaveSpeed * t));
+        };
+
+        const pre_YVelocity = carrierYVelocity(pre_idx)
+                                 + SeaModel.YVelocity[pre_idx];
+        const suf_YVelocity = carrierYVelocity(pre_idx+1)
+                                 + SeaModel.YVelocity[pre_idx+1];
+        const YVelocityInterpoalted =
+            pre_YVelocity * (1 - lerp) +
+            suf_YVelocity * lerp;
+
+        const norLength = Math.hypot(slope, 1);
+        const surfaceNormal = {
+            x: -slope / norLength,
+            y : 1 / norLength,
+        };
+
+        return { height: heightInterpolated, normal: surfaceNormal, velocityY: YVelocityInterpoalted, };
+    }
+
+    timeUpdate(t: number, ...args: any[]) {
+        super.timeUpdate(t, ...args);
+        this.updateWater(t, 1/24);
     }
 }

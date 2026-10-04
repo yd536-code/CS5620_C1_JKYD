@@ -1,7 +1,6 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
 import {AppState, Vec2} from "../../anigraph";
-import {BoatModel, ProjectShapeModel} from "./nodes";
-import {SeaModel} from "./nodes/SeaModel";
+import {BoatModel, ProjectShapeModel, SeaModel} from "./nodes";
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -49,7 +48,7 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.boat = new BoatModel();
         this.addNode(this.boat);
 
-        this.shape = new ProjectShapeModel();
+        // this.shape = new ProjectShapeModel();
         // this.addNode(this.shape);
     }
 
@@ -58,7 +57,11 @@ export class ProjectSceneModel extends ASceneModel2D{
      * @param t the current time, in seconds
      */
     timeUpdate(t: number){
-        this.shape.timeUpdate(t);
+        // this.shape.timeUpdate(t);
+        this.sea.timeUpdate(t);
+        this.boat.prsa.position.y = this.sea.sampleWaterAtX(0, t).height + 0.5;
+        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x, t);
+        this.boat.timeUpdate(t);
     }
 
     /** Key presses, forwarded from the scene controller. */

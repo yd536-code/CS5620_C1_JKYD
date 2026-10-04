@@ -26,7 +26,7 @@ export class ProjectSceneController extends ASceneController2D{
      */
     async initScene(){
         await super.initScene();
-        this.setClearColor(Color.FromString("#f4f1ea"));
+        this.setClearColor(Color.FromString("#dcf4ee"));
     }
 
     /**
