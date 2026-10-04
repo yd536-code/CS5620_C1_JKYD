@@ -1,6 +1,7 @@
-import {ASceneModel2D} from "../../../anigraph/starter/Scene2D/ASceneModel2D";
-import {AppState, Vec2} from "../../../anigraph";
-import {StarterShapeModel} from "./nodes";
+import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
+import {AppState, Vec2} from "../../anigraph";
+import {BoatModel, ProjectShapeModel} from "./nodes";
+import {SeaModel} from "./nodes/SeaModel";
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -12,9 +13,7 @@ import {StarterShapeModel} from "./nodes";
  * `@ALabel("c1.BouncingBallView")`), and its class docstring starts with a `@c1scene <SceneName>` line. See
  * `AGENTS.md`. This template's own labels predate that and stay as they are.
  */
-export class StarterSceneModel extends ASceneModel2D{
-    /** The example shape. Replace it with your own nodes. */
-    shape!: StarterShapeModel;
+export class ProjectSceneModel extends ASceneModel2D{
 
     /**
      * 1st: adds the control-panel controls. Runs before assets load and before the panel is first drawn, so every
@@ -23,7 +22,7 @@ export class StarterSceneModel extends ASceneModel2D{
      */
     initAppState(appState: AppState){
         super.initAppState(appState);
-        StarterShapeModel.SetAppState(appState);
+        ProjectShapeModel.SetAppState(appState);
     }
 
     /**
@@ -31,16 +30,27 @@ export class StarterSceneModel extends ASceneModel2D{
      */
     async PreloadAssets(): Promise<void> {
         await super.PreloadAssets();
-        await StarterShapeModel.PreloadAssets();
+        await ProjectShapeModel.PreloadAssets();
     }
 
     /**
      * 3rd: builds the scene. `addNode` adds a top-level node (and any children it has). Don't call `addChild` on a
      * scene model: it throws an error. Under a node, use `parent.addChild(child)`.
      */
+    shape!: ProjectShapeModel;
+    sea!:   SeaModel;
+    boat!:  BoatModel;
     async initScene(){
-        this.shape = new StarterShapeModel();
-        this.addNode(this.shape);
+        // Add the Sea
+        this.sea = new SeaModel();
+        this.addNode(this.sea);
+
+        // Add the Boat
+        this.boat = new BoatModel();
+        this.addNode(this.boat);
+
+        this.shape = new ProjectShapeModel();
+        // this.addNode(this.shape);
     }
 
     /**

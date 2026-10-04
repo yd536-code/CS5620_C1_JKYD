@@ -1,10 +1,10 @@
-import {AGLNodeView, ALabel, APolygonGraphic2D} from "../../../../anigraph";
-import {StarterShapeModel} from "./StarterShapeModel";
+import {AGLNodeView, ALabel, APolygonGraphic2D} from "../../../anigraph";
+import {ProjectShapeModel} from "./ProjectShapeModel";
 
 /**
  * # An example custom view
  *
- * Draws a `StarterShapeModel` as a filled polygon. A view draws one model: it reads the model and never changes it.
+ * Draws a `ProjectShapeModel` as a filled polygon. A view draws one model: it reads the model and never changes it.
  *
  * (The engine's `PolygonView2D` would draw this model just as well. This view is written out so you have a template
  * for your own.)
@@ -17,14 +17,14 @@ import {StarterShapeModel} from "./StarterShapeModel";
  * `@ALabel("c1.BouncingBallView")`), and its class docstring starts with a `@c1scene <SceneName>` line. See
  * `AGENTS.md`. This template's own labels predate that and stay as they are.
  */
-@ALabel("StarterShapeView")
-export class StarterShapeView extends AGLNodeView{
+@ALabel("ProjectShapeView")
+export class ProjectShapeView extends AGLNodeView{
     /** The graphic that draws the polygon. */
     element!: APolygonGraphic2D;
 
     /** The model, typed as the class this view draws. */
-    get model(): StarterShapeModel {
-        return this._model as StarterShapeModel;
+    get model(): ProjectShapeModel {
+        return this._model as ProjectShapeModel;
     }
 
     /**

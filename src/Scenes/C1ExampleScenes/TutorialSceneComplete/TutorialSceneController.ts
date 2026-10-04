@@ -5,7 +5,7 @@ import {
     AInteractionEvent,
     AKeyboardInteraction,
     AMeshModel2D,
-    AMeshView2D,
+    AMeshView2D, ANodeModel, ANodeModel2D, ANodeView,
     AssetManager,
     ASVGLModel2D,
     ASVGLView,

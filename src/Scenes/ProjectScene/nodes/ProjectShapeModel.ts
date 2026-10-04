@@ -1,4 +1,5 @@
 import {
+    AMeshModel2D,
     ANodeModel2D,
     AppState,
     ASerializable,
@@ -7,14 +8,10 @@ import {
     GetAppState,
     Polygon2D,
     V2,
-    Vec2
-} from "../../../../anigraph";
+    Vec2, VertexArray2D
+} from "../../../anigraph";
 
 /**
- * # An example node model
- *
- * A regular polygon that spins at a speed set in the control panel. Click to move it; the arrow keys nudge it.
- *
  * This class shows every part a node model usually has. Replace it with your own:
  * - `ControlKeys` and `SetAppState`: the control-panel controls this node reads.
  * - `PreloadAssets`: the files this node needs (none, here).
@@ -30,8 +27,8 @@ import {
  * `@ALabel("c1.BouncingBallView")`), and its class docstring starts with a `@c1scene <SceneName>` line. See
  * `AGENTS.md`. This template's own labels predate that and stay as they are.
  */
-@ASerializable("StarterShapeModel")
-export class StarterShapeModel extends ANodeModel2D{
+@ASerializable("ProjectShapeModel")
+export class ProjectShapeModel extends ANodeModel2D{
     /** Names of this node's control-panel entries. Use these with `GetAppState().getState(...)`. */
     static ControlKeys = {
         SpinSpeed: "StarterSpinSpeed",
@@ -52,9 +49,9 @@ export class StarterShapeModel extends ANodeModel2D{
      */
     static SetAppState(appState: AppState){
         // A slider: name, initial value, min, max, step size
-        appState.addSliderIfMissing(StarterShapeModel.ControlKeys.SpinSpeed, 1, -5, 5, 0.01);
+        appState.addSliderIfMissing(ProjectShapeModel.ControlKeys.SpinSpeed, 1, -5, 5, 0.01);
         // A color picker: name, initial value
-        appState.addColorControl(StarterShapeModel.ControlKeys.Color, Color.FromString("#3377ff"));
+        appState.addColorControl(ProjectShapeModel.ControlKeys.Color, Color.FromString("#3377ff"));
     }
 
     /**
@@ -84,6 +81,32 @@ export class StarterShapeModel extends ANodeModel2D{
     }
 
     /**
+     * Step 6.2: a triangle mesh. A white center vertex (index 0) and six rim vertices, colored red, yellow, green,
+     * cyan, blue and magenta, with one triangle from the center to each edge of the rim. Colors blend across each
+     * triangle, and you chose the triangles, unlike a polygon, which three.js splits into triangles itself.
+     */
+    static Fan(): AMeshModel2D{
+        const nRim = 6;
+        const radius = 1.2;
+        const positions = [V2(0, 0)];
+        const colors = [Color.White()];
+        for(let i=0;i<nRim;i++){
+            const theta = -i*2*Math.PI/nRim;
+            positions.push(V2(Math.cos(theta), Math.sin(theta)).times(radius));
+            // GetSpun rotates a color's hue around the color wheel by an angle, in radians.
+            colors.push(Color.FromString("#ff0000").GetSpun(i*2*Math.PI/nRim));
+        }
+        const verts = VertexArray2D.FromLists(positions, colors);
+        for(let i=1;i<=nRim;i++){
+            const next = (i === nRim) ? 1 : i+1;
+            verts.addTriangleIndices([0, i, next]);
+        }
+        const mesh = new AMeshModel2D(verts);
+        mesh.setMaterial(AssetManager.Create2DRGBAMaterial());
+        return mesh;
+    }
+
+    /**
      * Creates the shape's geometry and material. Call `PreloadAssets()` before constructing one.
      * Model classes must be constructible with no arguments, so every argument has a default.
      * @param nSides number of sides
@@ -91,8 +114,9 @@ export class StarterShapeModel extends ANodeModel2D{
      */
     constructor(nSides: number = 6, radius: number = 1.5){
         super();
-        const color: Color = GetAppState().getState(StarterShapeModel.ControlKeys.Color);
-        this.setVerts(StarterShapeModel.RegularPolygon(nSides, radius, color));
+        const appState = GetAppState();
+        const color: Color = GetAppState().getState(ProjectShapeModel.ControlKeys.Color);
+        this.setVerts(ProjectShapeModel.RegularPolygon(nSides, radius, color));
 
         // The RGBA material colors each pixel by interpolating the colors of the vertices around it.
         this.setMaterial(AssetManager.Create2DRGBAMaterial());
@@ -100,7 +124,7 @@ export class StarterShapeModel extends ANodeModel2D{
         // Recolor the shape whenever the color control changes. This is the "subscribe" way to use a control; see
         // timeUpdate for the "read it every frame" way. Subscribing is better for changes that are expensive to
         // apply, like rebuilding geometry.
-        this.subscribeToAppState(StarterShapeModel.ControlKeys.Color, (newColor: Color)=>{
+        this.subscribeToAppState(ProjectShapeModel.ControlKeys.Color, (newColor: Color)=>{
             this.verts.FillColor(newColor);
             // Changing geometry doesn't notify the view on its own, so signal the change.
             this.signalGeometryUpdate();
@@ -119,7 +143,7 @@ export class StarterShapeModel extends ANodeModel2D{
         this.lastTime = t;
 
         // Read the control where it is used.
-        const spinSpeed: number = GetAppState().getState(StarterShapeModel.ControlKeys.SpinSpeed);
+        const spinSpeed: number = GetAppState().getState(ProjectShapeModel.ControlKeys.SpinSpeed);
 
         // `prsa` is this node's live transform, as position, rotation, scale and anchor: editing it moves the node.
         this.prsa.rotation += spinSpeed*dt;
@@ -133,7 +157,7 @@ export class StarterShapeModel extends ANodeModel2D{
      * @param key the `key` value of the keyboard event, for example "ArrowLeft"
      */
     onKeyDown(key: string){
-        const step = StarterShapeModel.NudgeDistance;
+        const step = ProjectShapeModel.NudgeDistance;
         let offset: Vec2|undefined;
         switch(key){
             case "ArrowLeft": offset = V2(-step, 0); break;

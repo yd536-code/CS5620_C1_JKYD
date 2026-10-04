@@ -3,7 +3,7 @@
 2D example scenes for the C1 assignment, built on the Three.js `Scene2D` starter classes ([../../anigraph/starter/Scene2D/](../../anigraph/starter/Scene2D/README.md)). They follow the conventions in [../AniGraphSceneGuides.md](../AniGraphSceneGuides.md): each node model holds its own behavior, assets and controls, the scene model only handles interactions between nodes, and the controller only forwards input.
 
 ## Contents:
-- [./StarterScene](./StarterScene/README.md): The blank template to copy for your own scene: one spinning shape with its own controls, a custom view, and thin scene model and controller.
+- [./StarterScene](../ProjectScene/README.md): The blank template to copy for your own scene: one spinning shape with its own controls, a custom view, and thin scene model and controller.
 - [./HierarchyAndAnimation](./HierarchyAndAnimation/README.md): Transforms and the scene graph: a spiky star with an articulated arm attached (press and drag links), an orbiting group with an eased Spin! button, and one of every kind of control-panel control.
 - [./ShapesAndMaterials](./ShapesAndMaterials/README.md): A gallery of drawing techniques: polygon vs. triangle mesh, materials, textured quad, flipbook, SVG with draw order and visibility, animated line, custom graphic element; click an exhibit to hear and see it pulse.
 - [./ParticlePlayground2D](./ParticlePlayground2D/README.md): Particle-system playground: move Lab Cat with WASD and fire particles with x. Students write `fire()` and `updateParticles()`.
