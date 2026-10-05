@@ -33,8 +33,7 @@ export class SeaModel extends LineModel2D {
         super();
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.xForIdxOf(i);
-            this.verts.addVertex(V2(x,0),
-                Color.FromString("#4587f8"));
+            this.verts.addVertex(V2(x,0), SeaModel.SeaColor);
         }
         this.lineWidth = 0.01;
     }
@@ -128,6 +127,6 @@ export class SeaModel extends LineModel2D {
 
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
-        this.updateWater(t, 1/24);
+        this.updateWater(t, 1/60);
     }
 }

@@ -1,7 +1,6 @@
 import {ASceneController2D} from "../../anigraph/starter/Scene2D";
 import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, ANodeModel2D, Color} from "../../anigraph";
 import {ProjectSceneModel} from "./ProjectSceneModel";
-import {ProjectShapeModel, ProjectShapeView} from "./nodes";
 import {SeaModel, SeaView, BoatModel, BoatView} from "./nodes";
 
 /**
@@ -37,7 +36,7 @@ export class ProjectSceneController extends ASceneController2D{
      */
     initModelViewSpecs(){
         super.initModelViewSpecs();   // keeps specs a parent class adds; camera and group-node specs are built in
-        this.addModelViewSpec(ProjectShapeModel, ProjectShapeView);
+        // this.addModelViewSpec(ProjectShapeModel, ProjectShapeView);
         this.addModelViewSpec(SeaModel, SeaView);
         this.addModelViewSpec(BoatModel, BoatView);
     }
@@ -49,9 +48,7 @@ export class ProjectSceneController extends ASceneController2D{
      */
     initInteractions(){
         super.initInteractions();
-        this.createNewInteractionMode(
-            "Main",
-            {
+        this.createNewInteractionMode("Main", {
                 onKeyDown: (event: AInteractionEvent, interaction: AKeyboardInteraction)=>{
                     this.model.onKeyDown(event.key);
                 },

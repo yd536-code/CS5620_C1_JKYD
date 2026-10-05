@@ -59,18 +59,19 @@ export class ProjectSceneModel extends ASceneModel2D{
     timeUpdate(t: number){
         // this.shape.timeUpdate(t);
         this.sea.timeUpdate(t);
-        this.boat.prsa.position.y = this.sea.sampleWaterAtX(0, t).height + 0.5;
-        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x, t);
+        // this.boat.prsa.position.y = this.sea.sampleWaterAtX(0, t).height + 0.5;
+        // this.boat.sampleWater = x => this.sea.sampleWaterAtX(x, t);
         this.boat.timeUpdate(t);
     }
 
-    /** Key presses, forwarded from the scene controller. */
+    /** Key presses, forwarded from the scene controller */
     onKeyDown(key: string){
-        this.shape.onKeyDown(key);
+        this.boat.onKeyPress(key);
     }
 
-    /** Key releases, forwarded from the scene controller. Nothing uses them yet. */
+    /** Key releases, forwarded from the scene controller */
     onKeyUp(key: string){
+        this.boat.onKeyRelease(key);
     }
 
     /**
@@ -78,6 +79,7 @@ export class ProjectSceneModel extends ASceneModel2D{
      * @param worldPoint where the click happened, in world coordinates
      */
     onClick(worldPoint: Vec2){
-        this.shape.moveTo(worldPoint);
+        // this.shape.moveTo(worldPoint);
+        this.boat.prsa.position = worldPoint;
     }
 }
