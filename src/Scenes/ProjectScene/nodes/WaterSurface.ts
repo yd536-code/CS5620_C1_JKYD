@@ -4,4 +4,4 @@ export interface WaterSample {
     velocityY: number;
 }
 
-export type SampleWater = (x: number) => WaterSample;
+export type SampleWater = (x: number, t: number) => WaterSample;

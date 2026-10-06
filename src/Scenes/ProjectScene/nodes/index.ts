@@ -5,3 +5,4 @@ export * from "./SeaView";
 export * from "./WaterSurface"
 export * from "./BoatModel";
 export * from "./BoatView";
+export * from "./SubmergedSection"

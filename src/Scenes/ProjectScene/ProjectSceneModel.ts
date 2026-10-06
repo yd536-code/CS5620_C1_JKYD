@@ -40,12 +40,13 @@ export class ProjectSceneModel extends ASceneModel2D{
     sea!:   SeaModel;
     boat!:  BoatModel;
     async initScene(){
-        // Add the Sea
         this.sea = new SeaModel();
-        this.addNode(this.sea);
 
-        // Add the Boat
         this.boat = new BoatModel();
+        this.boat.prsa.position.y = this.sea.sampleWaterAtX(0,0).height + 0.15;
+        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x,1/60);
+
+        this.addNode(this.sea);
         this.addNode(this.boat);
 
         // this.shape = new ProjectShapeModel();
@@ -59,19 +60,22 @@ export class ProjectSceneModel extends ASceneModel2D{
     timeUpdate(t: number){
         // this.shape.timeUpdate(t);
         this.sea.timeUpdate(t);
+
         // this.boat.prsa.position.y = this.sea.sampleWaterAtX(0, t).height + 0.5;
-        // this.boat.sampleWater = x => this.sea.sampleWaterAtX(x, t);
+        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x,t);
         this.boat.timeUpdate(t);
     }
 
     /** Key presses, forwarded from the scene controller */
     onKeyDown(key: string){
         this.boat.onKeyPress(key);
+        this.sea.onKeyPress(key);
     }
 
     /** Key releases, forwarded from the scene controller */
     onKeyUp(key: string){
         this.boat.onKeyRelease(key);
+        this.sea.onKeyRelease(key);
     }
 
     /**

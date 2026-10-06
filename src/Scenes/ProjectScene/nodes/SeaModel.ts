@@ -13,11 +13,13 @@ export class SeaModel extends LineModel2D {
     static SeaHalfWidth = SeaModel.SeaDepth; // width of sea shape
     static SeaColor = Color.FromString("#4587f8");
 
-    static WaveSpeed = 1.5;
-    static WaveAmplitude = 0.5;
-    static Wavelength = 4;
+    waveSpeed = 3;
+    static WaveTopSpeed = 8;
+    static WaveAccel = 3;
+    static WaveAmplitude = 0.25;
+    static Wavelength = 3;
 
-    static NSpacing = 0.15;
+    static NSpacing = 0.25;
     static NSamples = 1 + Math.floor(2 * SeaModel.SeaHalfWidth / SeaModel.NSpacing);
 
     static time = 0;
@@ -35,12 +37,37 @@ export class SeaModel extends LineModel2D {
             const x = this.xForIdxOf(i);
             this.verts.addVertex(V2(x,0), SeaModel.SeaColor);
         }
-        this.lineWidth = 0.01;
+        this.lineWidth = 0.001;
+    }
+
+    private PressedKeys = new Set<string>();
+    get waveThrottle() {
+        return Number(this.PressedKeys.has('ArrowRight'))
+             - Number(this.PressedKeys.has('ArrowLeft'))
+    }
+    onKeyPress(key: string) { // browser reports any key pressed
+        if (this.PressedKeys.has(key)) return; // prevent repeated press
+        this.PressedKeys.add(key);  // remember *this* key until onKeyRelease()
+    }
+    onKeyRelease(key: string) {  // browser reports any key released
+        this.PressedKeys.delete(key);   // release *this* from pressed keys
+        // SeaModel.WaveTopSpeed = Math.sign(SeaModel.WaveTopSpeed);
     }
 
     // Advance water
-    updateWater(t: number, dt: number) {
-        const waveSpeed = SeaModel.WaveSpeed;   // wave propagation velocity (m/s)
+    lastTime?: number;
+    waveTravel: number = 0;
+    updateWater(t: number) {
+        const dt = (this.lastTime === undefined) ? 0 : Math.min(t - this.lastTime, 1/60);
+        this.lastTime = t;
+
+        this.waveSpeed = Math.max(-SeaModel.WaveTopSpeed,
+            Math.min(SeaModel.WaveTopSpeed,
+                this.waveSpeed + this.waveThrottle*SeaModel.WaveAccel*dt)
+        );
+
+        this.waveTravel += this.waveSpeed * dt;
+        // const waveSpeed = SeaModel.WaveTopSpeed;   // wave propagation velocity (m/s)
         const waveAmp = SeaModel.WaveAmplitude; // wave amplitude (m)
         const lambda = SeaModel.Wavelength;     // wavelength (m)
         const dx2 = SeaModel.NSpacing**2;       // squared spatial resolution (Δx)²
@@ -62,7 +89,7 @@ export class SeaModel extends LineModel2D {
             );
 
             // 3. Acceleration: wave propagation - equilibrium pull - damping
-            const waveAccel    = (waveSpeed**2) * curvature;
+            const waveAccel    = (this.waveSpeed**2) * curvature;
             const restoreAccel = -5 * SeaModel.ripple[i];
             const dampAccel    = -(1.5 + 5 * edgeDamp) * SeaModel.YVelocity[i];
 
@@ -79,7 +106,7 @@ export class SeaModel extends LineModel2D {
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.xForIdxOf(i);
             const k = 2 * Math.PI / lambda;
-            const y = waveAmp * Math.sin(k * (x - waveSpeed * t)) + SeaModel.ripple[i];
+            const y = waveAmp * Math.sin(k * (x - this.waveTravel)) + SeaModel.ripple[i];
             this.verts.position.setAt(i, V2(x,y));
         }
         this.signalGeometryUpdate();  // tell the view to re-draw
@@ -105,14 +132,15 @@ export class SeaModel extends LineModel2D {
         const slope = (suf_vert.y - pre_vert.y)/SeaModel.NSpacing;
         const carrierYVelocity = (idx: number): number=> {
             const vert_x = this.xForIdxOf(idx);
-            return -SeaModel.WaveAmplitude * k * SeaModel.WaveSpeed * Math.cos(k * (vert_x - SeaModel.WaveSpeed * t));
+            return -SeaModel.WaveAmplitude * k * SeaModel.WaveTopSpeed
+                * Math.cos(k * (vert_x - this.waveTravel));
         };
 
         const pre_YVelocity = carrierYVelocity(pre_idx)
                                  + SeaModel.YVelocity[pre_idx];
         const suf_YVelocity = carrierYVelocity(pre_idx+1)
                                  + SeaModel.YVelocity[pre_idx+1];
-        const YVelocityInterpoalted =
+        const YVelocityInterpolated =
             pre_YVelocity * (1 - lerp) +
             suf_YVelocity * lerp;
 
@@ -122,11 +150,11 @@ export class SeaModel extends LineModel2D {
             y : 1 / norLength,
         };
 
-        return { height: heightInterpolated, normal: surfaceNormal, velocityY: YVelocityInterpoalted, };
+        return { height: heightInterpolated, normal: surfaceNormal, velocityY: YVelocityInterpolated, };
     }
 
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
-        this.updateWater(t, 1/60);
+        this.updateWater(t);
     }
 }
