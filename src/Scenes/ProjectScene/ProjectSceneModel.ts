@@ -1,6 +1,6 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
 import {AppState, Vec2} from "../../anigraph";
-import {BoatModel, ProjectShapeModel, SeaModel} from "./nodes";
+import {BoatModel, ProjectShapeModel, SeaBodyFill, SeaModel} from "./nodes";
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -36,21 +36,20 @@ export class ProjectSceneModel extends ASceneModel2D{
      * 3rd: builds the scene. `addNode` adds a top-level node (and any children it has). Don't call `addChild` on a
      * scene model: it throws an error. Under a node, use `parent.addChild(child)`.
      */
-    shape!: ProjectShapeModel;
     sea!:   SeaModel;
+    seaBody!: SeaBodyFill;
     boat!:  BoatModel;
     async initScene(){
         this.sea = new SeaModel();
+        this.seaBody = new SeaBodyFill(this.sea);
 
         this.boat = new BoatModel();
-        this.boat.prsa.position.y = this.sea.sampleWaterAtX(0,0).height + 0.15;
-        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x,1/60);
+        this.boat.prsa.position.y = this.sea.sampleWaterAtX(0).height + 0.15;
+        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
 
         this.addNode(this.sea);
+        this.addNode(this.seaBody);
         this.addNode(this.boat);
-
-        // this.shape = new ProjectShapeModel();
-        // this.addNode(this.shape);
     }
 
     /**
@@ -58,11 +57,15 @@ export class ProjectSceneModel extends ASceneModel2D{
      * @param t the current time, in seconds
      */
     timeUpdate(t: number){
-        // this.shape.timeUpdate(t);
+        this.sea.timeUpdate(t);
         this.sea.timeUpdate(t);
 
-        // this.boat.prsa.position.y = this.sea.sampleWaterAtX(0, t).height + 0.5;
-        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x,t);
+        const SeaPts = Array.from( { length: this.sea.verts.nVerts},
+            (_,i) => this.sea.verts.vertexAt(i).y
+        );
+        this.seaBody.timeUpdate(t);
+
+        this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
     }
 

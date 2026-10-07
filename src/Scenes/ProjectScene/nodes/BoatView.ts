@@ -22,7 +22,7 @@ export class BoatView extends AGLNodeView {
 
         // // Rebuild the graphic whenever the model signals that its geometry changed.
         // this.subscribe(this.model.addGeometryListener(()=>{
-        //     this.sea.setVerts2D(this.model.verts);
+        //     this.seaBody.setVerts2D(this.model.verts);
         // }));
 
         this.update();

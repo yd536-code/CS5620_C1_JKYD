@@ -5,19 +5,22 @@ import {
     V2
 } from "../../../anigraph";
 import {WaterSample} from "./WaterSurface";
+import {BoatModel} from "./BoatModel";
 
 @ASerializable("SeaModel")
 export class SeaModel extends LineModel2D {
     static Density = 1000;  // water: kg/m3
-    static SeaDepth= 10;    // made 'static' for later extension
-    static SeaHalfWidth = SeaModel.SeaDepth; // width of sea shape
-    static SeaColor = Color.FromString("#4587f8");
+    static SeaDepth= 10;    // height (passed to SeaBodyFill to actually create seaBody as an area)
+    static SeaHalfWidth = SeaModel.SeaDepth; // width of seaBody shape (1:1 aspect ratio)
+    SeaColor = Color.FromString("#4587f8");
 
-    waveSpeed = 3;
-    static WaveTopSpeed = 8;
-    static WaveAccel = 3;
-    static WaveAmplitude = 0.25;
-    static Wavelength = 3;
+    deGlobalWarmer = 0; // distance below horizontal center of the screen
+
+    static waveSpeed = 3;
+    static WaveTopSpeed = 10;
+    static WaveAccel = 4;
+    static WaveAmplitude = 0.2;
+    static Wavelength = 4;
 
     static NSpacing = 0.25;
     static NSamples = 1 + Math.floor(2 * SeaModel.SeaHalfWidth / SeaModel.NSpacing);
@@ -35,7 +38,7 @@ export class SeaModel extends LineModel2D {
         super();
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.xForIdxOf(i);
-            this.verts.addVertex(V2(x,0), SeaModel.SeaColor);
+            this.verts.addVertex(V2(x,-this.deGlobalWarmer), this.SeaColor);
         }
         this.lineWidth = 0.001;
     }
@@ -45,9 +48,11 @@ export class SeaModel extends LineModel2D {
         return Number(this.PressedKeys.has('ArrowRight'))
              - Number(this.PressedKeys.has('ArrowLeft'))
     }
-    onKeyPress(key: string) { // browser reports any key pressed
-        if (this.PressedKeys.has(key)) return; // prevent repeated press
-        this.PressedKeys.add(key);  // remember *this* key until onKeyRelease()
+
+    onKeyPress(key: string) {
+        if (this.PressedKeys.has(key))
+            return; // prevent repeated press
+        this.PressedKeys.add(key);  // remember *this* key until key released
     }
     onKeyRelease(key: string) {  // browser reports any key released
         this.PressedKeys.delete(key);   // release *this* from pressed keys
@@ -56,17 +61,17 @@ export class SeaModel extends LineModel2D {
 
     // Advance water
     lastTime?: number;
-    waveTravel: number = 0;
+    static waveTravel: number = 0;
     updateWater(t: number) {
         const dt = (this.lastTime === undefined) ? 0 : Math.min(t - this.lastTime, 1/60);
         this.lastTime = t;
 
-        this.waveSpeed = Math.max(-SeaModel.WaveTopSpeed,
+        SeaModel.waveSpeed = Math.max(-SeaModel.WaveTopSpeed,
             Math.min(SeaModel.WaveTopSpeed,
-                this.waveSpeed + this.waveThrottle*SeaModel.WaveAccel*dt)
+                SeaModel.waveSpeed + this.waveThrottle*SeaModel.WaveAccel*dt)
         );
 
-        this.waveTravel += this.waveSpeed * dt;
+        SeaModel.waveTravel += SeaModel.waveSpeed * dt;
         // const waveSpeed = SeaModel.WaveTopSpeed;   // wave propagation velocity (m/s)
         const waveAmp = SeaModel.WaveAmplitude; // wave amplitude (m)
         const lambda = SeaModel.Wavelength;     // wavelength (m)
@@ -89,7 +94,7 @@ export class SeaModel extends LineModel2D {
             );
 
             // 3. Acceleration: wave propagation - equilibrium pull - damping
-            const waveAccel    = (this.waveSpeed**2) * curvature;
+            const waveAccel    = (SeaModel.waveSpeed**2) * curvature;
             const restoreAccel = -5 * SeaModel.ripple[i];
             const dampAccel    = -(1.5 + 5 * edgeDamp) * SeaModel.YVelocity[i];
 
@@ -102,17 +107,17 @@ export class SeaModel extends LineModel2D {
             SeaModel.ripple[i] += SeaModel.YVelocity[i] * dt;
         SeaModel.pending.fill(0);   // Reset queued boat impulses
 
-        // 6. Update rendered sea-surface-outline to View
+        // 6. Update rendered seaBody-surface-outline to View
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.xForIdxOf(i);
             const k = 2 * Math.PI / lambda;
-            const y = waveAmp * Math.sin(k * (x - this.waveTravel)) + SeaModel.ripple[i];
-            this.verts.position.setAt(i, V2(x,y));
+            const y = waveAmp * Math.sin(k * (x - SeaModel.waveTravel)) + SeaModel.ripple[i];
+            this.verts.position.setAt(i, V2(x,y-this.deGlobalWarmer));
         }
         this.signalGeometryUpdate();  // tell the view to re-draw
     }
 
-    sampleWaterAtX(X: number, t: number): WaterSample {
+    sampleWaterAtX(X: number): WaterSample {
         const localX = X - this.transform.getPosition().x;
         const k = 2 * Math.PI / SeaModel.Wavelength;
         const cur_idx = (localX + SeaModel.SeaHalfWidth) / SeaModel.NSpacing; // "exact" index w/ decimals
@@ -133,7 +138,7 @@ export class SeaModel extends LineModel2D {
         const carrierYVelocity = (idx: number): number=> {
             const vert_x = this.xForIdxOf(idx);
             return -SeaModel.WaveAmplitude * k * SeaModel.WaveTopSpeed
-                * Math.cos(k * (vert_x - this.waveTravel));
+                * Math.cos(k * (vert_x - SeaModel.waveTravel));
         };
 
         const pre_YVelocity = carrierYVelocity(pre_idx)
@@ -150,7 +155,8 @@ export class SeaModel extends LineModel2D {
             y : 1 / norLength,
         };
 
-        return { height: heightInterpolated, normal: surfaceNormal, velocityY: YVelocityInterpolated, };
+        return { height: heightInterpolated, normal: surfaceNormal,
+                 velocityX: 0, velocityY: YVelocityInterpolated, };
     }
 
     timeUpdate(t: number, ...args: any[]) {

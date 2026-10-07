@@ -1,4 +1,4 @@
-import {ANodeModel2D, ASerializable, AssetManager, Color, Polygon2D, V2, V3} from "../../../anigraph";
+import {ANodeModel2D, ASerializable, AssetManager, Color, Polygon2D, V2, V3, Vec2} from "../../../anigraph";
 import {SeaModel} from "./SeaModel";
 import {SampleWater} from "./WaterSurface";
 import {SubmergedSection} from "./SubmergedSection";
@@ -6,17 +6,29 @@ import {SubmergedSection} from "./SubmergedSection";
 @ASerializable("BoatModel")
 export class BoatModel extends ANodeModel2D {
     // For a sealed extruded trapezoid
-    static BoatTopWidth = 3/2;
-    static BoatBotWidth = 2/2;
-    static BoatHeight = 0.6/2;
+    static BoatTopWidth = 3;
+    static BoatBotWidth = 2;
+    static BoatHeight = 1;
     static BoatBreadth = 1;
     static BoatVolume = BoatModel.BoatBreadth*(BoatModel.BoatTopWidth+BoatModel.BoatBotWidth)*BoatModel.BoatHeight/2;
-    static Mass = 500 * BoatModel.BoatVolume;
+    static Mass = 400 * BoatModel.BoatVolume;
     readonly WaterDensity = SeaModel.Density;
+    XPushFromWaterCoeff = 0;  // how much the water pulls the boat horizontally
 
     get hull() {
         return Array.from({length: this.verts.nVerts},
             (_, i)=>this.verts.vertexAt(i));
+    }
+    private lerp(val1: number, val2: number, t: number): number;
+    private lerp(val1: Vec2, val2: Vec2, t: number): Vec2;
+    private lerp(val1: number|Vec2, val2: number|Vec2, t: number): number|Vec2 {
+        if (typeof val1 === "number" && typeof val2 === "number")
+            return val1 * (1-t) + val2 * t;
+        else if (typeof val1 === "object" && typeof val2 === "object")
+            return V2(val1.x * (1-t) + val2.x * t,
+                val1.y * (1-t) + val2.y * t);
+        else
+            throw new Error("Invalid argument: Expect consistent data type (number|Vec2)")
     }
 
     static Throttle = 0;   // {-1, 1} Full left or right
@@ -30,33 +42,31 @@ export class BoatModel extends ANodeModel2D {
     private DashMultiplier = 2;
     private DashTimer = 0;
     private StopTimer = 0;
+    private PressedKeys = new Set<string>();
 
     static JumpSpeed = 8;
     static SlamSpeed = 8;
     private JumpUsed = 0;   // Check: to count double jumping
-    private HasLeftWater = false;   // Check: allow double jumping only in air
-    private IsSlamming = false; // Check: trigger slamming motion
-
-    private PressedKeys = new Set<string>();
+    private wasAirborne = false; // Check if boat is in air
+    private isSlamming = false; // Check if boat slams
 
     sampleWater: SampleWater = () => ({
-        height: -Infinity, normal: { x: 0, y: 1}, velocityY: 0
+        height: -Infinity, normal: { x: 0, y: 1}, velocityX: 0, velocityY: 0
     });
     // inertia formula simplified by assuming a cube (https://dynref.engr.illinois.edu/rem.html)
-    // value tweaked for smoother gameplay
     get AngularInertia() {
         return BoatModel.Mass * (BoatModel.BoatBotWidth**2) / 12;
-        // return BoatModel.Mass * (3 ** 2 + 0.7 ** 2) / 12;
+        // value tweaked for smoother gameplay
     }
     get curThrottle() {
         return Number(this.PressedKeys.has('d')) - Number(this.PressedKeys.has('a'))
     }
 
-    onKeyPress(key: string) { // browser reports any key pressed
-        if (this.PressedKeys.has(key)) return; // prevent repeated jump/slam while *this* key held
-        this.PressedKeys.add(key);  // remember *this* key until onKeyRelease()
+    onKeyPress(key: string) {
+        if (this.PressedKeys.has(key)) return; // prevent repeated presses
+        this.PressedKeys.add(key);  // remember *this* key until key released
 
-        if (key === 'w') this.jump();                 // trigger jump
+        if (key === 'w') this.jump(this.sampleWater); // trigger jump
         if (key === 's') this.slam(this.sampleWater); // trigger slam
 
         if (this.PressedKeys.has(this.DashKey) && this.curThrottle !== 0)
@@ -70,21 +80,14 @@ export class BoatModel extends ANodeModel2D {
         this.DashTimer = 0;
         BoatModel.Throttle = 0;
     }
-
-    jump() {    // For boat's jumping action
-        if (this.JumpUsed >= 2) return;   // prevent endless jumping
-        ++this.JumpUsed;                  // accumulate occurred jumping
-        this.IsSlamming = false;          // reset slam state
-        BoatModel.Velocity.y = BoatModel.JumpSpeed; // apply upward speed (jump)
-        this.PressedKeys.delete('w');   // cost one 'w' per jump
-    }
-    slam(sampleWater: SampleWater) {    // For boat's slamming action
-        if (!this.isAirborne(sampleWater)) return; // prevent slamming if not in air
-        this.IsSlamming = true;
-        BoatModel.Velocity.y = Math.min(BoatModel.Velocity.y, -BoatModel.SlamSpeed);
-    }
-    isAirborne(sampleWater: SampleWater): boolean {  // Check if boat's body completely in air
-        return true;    // [Placeholder: waiting for implementation !!!]
+    getOffsetFromAnchor(vert: Vec2) {
+        const CosRot = Math.cos(this.prsa.rotation);
+        const SinRot = Math.sin(this.prsa.rotation);
+        const localX = (vert.x - this.prsa.anchor.x) * this.prsa.scale.x;
+        const localY = (vert.y - this.prsa.anchor.y) * this.prsa.scale.y;
+        const offsetX = CosRot * localX - SinRot * localY;
+        const offsetY = SinRot * localX + CosRot * localY;
+        return { x: offsetX, y: offsetY };
     }
 
     constructor() {
@@ -114,40 +117,53 @@ export class BoatModel extends ANodeModel2D {
     }
     lastTime?: number;
     updateBoat(t:number, sampleWater: SampleWater) {
-        const dt = (this.lastTime === undefined) ? 0 : Math.min(t - this.lastTime, 1/60);
+        const dt = (this.lastTime === undefined) ? 0 : Math.max(t - this.lastTime, 0);
         this.lastTime = t;
 
         const Position = this.prsa.position;
         const Rotation = this.prsa.rotation;
-        const Scale = this.prsa.scale;
-        const Anchor = this.prsa.anchor;
-
-        const V = BoatModel.Velocity;
+        const Velocity = BoatModel.Velocity;
 
         const CosRot = Math.cos(Rotation);
         const SinRot = Math.sin(Rotation);
         const TargetSpeed = this.curThrottle * BoatModel.TopSpeed;
 
-        const hullBotCenter = V2(
-            (this.hull[3].x+this.hull[2].x) / 2,
-            (this.hull[3].y+this.hull[2].y) / 2,
-        );
-        const WaterPts = [this.hull[2], hullBotCenter, this.hull[3]]
-            .map(vert=> {
-                const localX = (vert.x - Anchor.x) * Scale.x;
-                const localY = (vert.y - Anchor.y) * Scale.y;
-                const offsetX = CosRot * localX - SinRot * localY;
-                const offsetY = SinRot * localX + CosRot * localY;
-                return {offsetX, offsetY,
-                        waterPt: sampleWater(Position.x + offsetX, t),
-                };
-            });
+        // const hullBotCenter = V2(
+        //     (this.hull[3].x+this.hull[2].x) / 2,
+        //     (this.hull[3].y+this.hull[2].y) / 2,
+        // );
+        // const WaterPts = [this.hull[2], hullBotCenter, this.hull[3]]
+        //     .map(vert=> {
+        //         const offset = this.getOffsetFromAnchor(vert);
+        //         return {offsetX: offset.x, offsetY: offset.y,
+        //                 waterPt: sampleWater(Position.x + offset.x),
+        //         };
+        //     });
+        const botSampleCnt = 10;
+        const botLeft = this.hull[2];
+        const botRight = this.hull[3];
+        const WaterPts = Array.from( {length: botSampleCnt},
+            (_, i) => {
+            const t0 =  i   / botSampleCnt;
+            const t1 = (i+1)/ botSampleCnt;
+
+            const p0 = this.lerp(botLeft, botRight, t0);
+            const p1 = this.lerp(botLeft, botRight, t1);
+            const pm = this.lerp(botLeft, botRight, (t0+t1)/2);
+
+            const panelLength = Math.hypot(p1.x-p0.x, p1.y-p0.y);
+            const offset = this.getOffsetFromAnchor(pm);
+            return {offsetX:     offset.x,      offsetY: offset.y,
+                    panelLength: panelLength,
+                    waterPt:     sampleWater(Position.x + offset.x),
+            };
+        });
 
         // (X, Y, angular)
         let WaterForce = {X:0, Y:0, Torque: 0};
         let isTouchingWater = false;
         let aveNormal = {X: 0, Y:0};
-        let normalWeight = 0;
+        let normalSamples = 0;
 
         const sampleCnt = WaterPts.length;
         for (const sample of WaterPts) {
@@ -156,78 +172,90 @@ export class BoatModel extends ANodeModel2D {
                 waterPt.normal.x, waterPt.normal.y
             );  if (normal_magnitude < 1e-6) continue;
 
-            const normal = {
+            let normal = {
                 x: waterPt.normal.x / normal_magnitude,
                 y: waterPt.normal.y / normal_magnitude,
             };
+            if (normal.y < 0) {
+                normal.x *= -1; normal.y *= -1;
+            }
 
             // Fit boat vertices to waterline vertices
             // return {vert-along-surface, vert-perpendicular-to-surface}
             const hull2waterCoords = this.hull.map(vert => {
-                const localX = (vert.x - Anchor.x) * Scale.x;
-                const localY = (vert.y - Anchor.y) * Scale.y;
-                // apply rotation 'matrix'
-                const rotatedX = CosRot * localX - SinRot * localY;
-                const rotatedY = SinRot * localX + CosRot * localY;
-                // project onto sea's surface tangent and normal
-                return V2(normal.y * rotatedX - normal.x * rotatedY,
-                          normal.x * rotatedX + normal.y * rotatedY);
+                const offset = this.getOffsetFromAnchor(vert);
+                return V2(normal.y * offset.x - normal.x * offset.y,
+                          normal.x * offset.x + normal.y * offset.y);
             });
-            // waterline offset relative to boat's center
-            const waterline =
-                  normal.x * offsetX
-                + normal.y * (waterPt.height - Position.y);
-            // take   [V2[] of boat vertices, waterline-point relative to boat anchor]
+            // signed local waterline offset along normal to boat's center
+            const waterlineNormalOffset =
+                normal.x * offsetX + normal.y * (waterPt.height - Position.y);
+
             // return [wetVerts.x = centroid x-coordinate, wetVerts.y = submerged area]
             const wetVerts = SubmergedSection(
                 hull2waterCoords,
-                waterline,
-            ); if (wetVerts.Area <= 0) continue;
+                waterlineNormalOffset,
+            );
 
+            if (wetVerts.Area <= 0) continue;
             isTouchingWater = true;
-            // each sample contributes (1/3) of (rho * g * V)
-            const Buoyancy = this.WaterDensity * 9.81 * BoatModel.BoatBreadth
-                    * wetVerts.Area / sampleCnt;
-            // velocity of boat along local water normal
-            const RelativeNormalVelocity =
-                (V.x - V.z * offsetY) * normal.x
-              + ((V.y + V.z * offsetX) - (waterPt.velocityY??0)) * normal.y;
 
-            const DampRate = (RelativeNormalVelocity < 0) ? 6 : 2;
+            const submergedDepth = Math.max(0,
+                waterPt.height - (Position.y+offsetY));
+            const displacedVolume =
+                submergedDepth * sample.panelLength * BoatModel.BoatBreadth;
+            const Buoyancy = this.WaterDensity * 9.81 * displacedVolume;
+
+            const tangent = {x: normal.y, y: -normal.x};
+            const BuoOffsetFromCOMX= tangent.x * wetVerts.CenterX
+                                           + normal.x * wetVerts.CenterY;
+            const BuoOffsetFromCOMY= tangent.y * wetVerts.CenterX
+                                           + normal.y * wetVerts.CenterY;
+
+            // velocity of boat vertex
+            const PointVelocityX = Velocity.x - Velocity.z * BuoOffsetFromCOMY;
+            const PointVelocityY = Velocity.y + Velocity.z * BuoOffsetFromCOMX;
+
+            const boatRelativeNormalVelocity =
+                  PointVelocityX * normal.x
+                + PointVelocityY * normal.y;
+
+            // stronger resistance when entering water than leaving
+            // const DampRate = (boatRelativeNormalVelocity < 0) ? 6 : 2;
+            const DampRate = 2;
             let DampForce = -DampRate
-                * (BoatModel.Mass/sampleCnt)
-                * RelativeNormalVelocity;
+                                  * (BoatModel.Mass/sampleCnt)
+                                  * boatRelativeNormalVelocity;
 
             const EffectiveSampleMass = BoatModel.Mass / sampleCnt;
             const MaxDampForce = 0.8 * EffectiveSampleMass
-                * Math.abs(RelativeNormalVelocity)
+                * Math.abs(boatRelativeNormalVelocity)
                 / Math.max(dt, 1e-5);
             DampForce = Math.max(-MaxDampForce,
-                Math.min(MaxDampForce,
-                    DampForce
-                )
+                Math.min(MaxDampForce, DampForce)
             );
 
-            const normalForce = Math.max(
-                0,
-                Buoyancy + DampForce
-            );
+            const DampForceX = DampForce * normal.x;
+            const DampForceY = DampForce * normal.y;
 
-            // console.log(normal.y);
-            WaterForce.X      += normalForce * normal.x;
-            WaterForce.Y      += normalForce * normal.y;
-            WaterForce.Torque += normalForce * wetVerts.CenterX;
+            const ForceX = DampForceX;
+            const ForceY = Buoyancy + DampForceY;
+            WaterForce.X += ForceX;
+            WaterForce.Y += ForceY;
 
-            aveNormal.X += normal.x * normalForce;
-            aveNormal.Y += normal.y * normalForce;
-            normalWeight += normalForce;
+            WaterForce.Torque += BuoOffsetFromCOMX * ForceY * 1.1
+                               - BuoOffsetFromCOMY * ForceX;
+
+            aveNormal.X += normal.x * wetVerts.Area;
+            aveNormal.Y += normal.y * wetVerts.Area;
+            normalSamples += wetVerts.Area;
         }
 
         // Is dashing && A/D key not released
         if (this.DashTimer > 0 && this.curThrottle !== 0) {
             this.StopTimer = 0.35;
             this.DashTimer -= dt;
-            V.x = CosRot * TargetSpeed * (this.DashTimer <= 0 ? 1 : this.DashMultiplier);
+            Velocity.x = CosRot * TargetSpeed * (this.DashTimer <= 0 ? 1 : this.DashMultiplier);
         } else {  // DashTimer ends || Throttle is released
             this.DashTimer = 0;     // end dash
             if (this.curThrottle !== 0) { // throttle on
@@ -239,48 +267,100 @@ export class BoatModel extends ANodeModel2D {
                 this.StopTimer = Math.max(0, this.StopTimer-dt);
                 const brakeStrength = 1 - this.StopTimer/0.4;
                 this.moveXVelocityToward(0,
-                    // (1 + SinRot/2) * // decelerate harder if boat being virtical
                     BoatModel.Deceleration * brakeStrength * dt
                 );
             }
         }
-
-        V.x += 0.5 * ( WaterForce.X / BoatModel.Mass ) * dt;
-        V.y += (
-            WaterForce.Y / BoatModel.Mass   // Vertical buoyancy acceleration
-            - 9.81  // gravity (value tweaked for smoother gameplay)
-            // + Recovery
-            // + VerticalResistance * verticalSpeedOffset
-        ) * dt;
-
-        this.prsa.position.x += V.x * dt;
-        this.prsa.position.y += V.y * dt;
+        // add horizontal pull to Velocity.x
+        Velocity.x += this.XPushFromWaterCoeff * (WaterForce.X/BoatModel.Mass) * dt;
+        Velocity.y += (WaterForce.Y / BoatModel.Mass   // Vertical buoyancy acceleration
+                - 9.81) * dt;
+        this.prsa.position.x += Velocity.x * dt;
+        this.prsa.position.y += Velocity.y * dt;
 
         let RestoreTorque = 0;
-        if (isTouchingWater && normalWeight > 1e-6) {
-            const nor_x = aveNormal.X / normalWeight;
-            const nor_y = aveNormal.Y / normalWeight;
-            const WaterTanAngle = Math.atan2(-nor_x, nor_y);
-            const UprightError = Math.atan2(
-                Math.sin(Rotation - WaterTanAngle),
-                Math.cos(Rotation - WaterTanAngle)
-            );
-            RestoreTorque =
-                -20 * UprightError
-                -10 * V.z;
+        if (isTouchingWater && normalSamples > 1e-6) {
+            let norX = aveNormal.X / normalSamples;
+            let norY = aveNormal.Y / normalSamples;
+            const norMagnitude = Math.hypot(norX, norY);
+            if (norMagnitude > 1e-6) {
+                norX /= norMagnitude;
+                norY /= norMagnitude;
+                const WaterTangentAngle = Math.atan2(-norX, norY);
+                const UprightError = Math.atan2(
+                    Math.sin(Rotation - WaterTangentAngle),
+                    Math.cos(Rotation - WaterTangentAngle)
+                );
+                const UprightSpring = 3;
+                const AngularDamp = 20;
+                RestoreTorque = -UprightSpring * UprightError
+                                -AngularDamp   * Velocity.z;
+            } else { RestoreTorque = -2 * Velocity.z; }
         } else {
-            RestoreTorque = -15 * V.z;
+            // airborne angular damp
+            RestoreTorque = -4 * Velocity.z;
         }
 
-        V.z += (
-              WaterForce.Torque / this.AngularInertia
-            + RestoreTorque
-        ) * dt;
-        this.prsa.rotation += V.z * dt;
+        Velocity.z += (WaterForce.Torque / this.AngularInertia
+                     + RestoreTorque) * dt;
+        this.prsa.rotation += Velocity.z * dt;
+
+        // boat lands if (was airborne) and (is in water)
+        const isAirborne    = this.isAirborne(sampleWater);
+        const boatHasLanded = this.wasAirborne && !isAirborne;
+        this.wasAirborne = isAirborne;   // update airborne status
+
+        if (boatHasLanded) this.JumpUsed = 0;   // reset jump after boat in water
+        if (this.isSlamming && !isAirborne) {
+            // if boat has slammed into water
+            this.isSlamming = false; // rest slam
+            this.JumpUsed = 0;       // reset jump
+        }
     }
 
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
         this.updateBoat(t, this.sampleWater);
+    }
+
+    jump(sampleWater: SampleWater) {    // For boat's jumping action
+        if (this.JumpUsed !== Number(this.isAirborne(sampleWater)))
+            return;  // NO jumping if have had (2-jumps||1-jump but not airborne||0-jump but airborne)
+        ++this.JumpUsed;            // accumulate occurred jumping
+        this.isSlamming = false;    // reset slam state
+        BoatModel.Velocity.y = (this.JumpUsed === 1) // apply upward speed (jump)
+            ? BoatModel.JumpSpeed*1.1     // stronger first jump
+            : BoatModel.JumpSpeed/1.2;    // weaker second jump
+    }
+    slam(sampleWater: SampleWater) {    // For boat's slamming action
+        if (this.JumpUsed === 0 || !this.isAirborne(sampleWater))
+            return; // NO slamming if (haven't jumped||not airborne)
+        this.isSlamming = true; // update that boat IS slamming
+        BoatModel.Velocity.y = Math.min(BoatModel.Velocity.y, -BoatModel.SlamSpeed);
+    }
+
+    // Check if boat's body completely in air
+    isAirborne(sampleWater: SampleWater): boolean {
+        const boatWorldPts = this.hull.map(vert => {
+            const offset = this.getOffsetFromAnchor(vert);
+            const pos = this.prsa.position;
+            return { x: pos.x + offset.x, y: pos.y + offset.y };
+        });
+        let lowestDistFromWater = Infinity;
+        for (let i = 0; i < boatWorldPts.length; ++i) {
+            const pt1 = boatWorldPts[i];
+            const pt2 = boatWorldPts[(i+1)%boatWorldPts.length];
+            const nSampleAlongBoat = Math.max(1,
+                Math.ceil(Math.hypot(pt2.x-pt1.x, pt2.y-pt1.y)/0.125)
+            );
+            for (let j = 0; j < nSampleAlongBoat; ++j) {
+                const lerp = j / nSampleAlongBoat;
+                const x = pt1.x + lerp*(pt2.x-pt1.x),
+                      y = pt1.y + lerp*(pt2.y-pt1.y);
+                lowestDistFromWater = Math.min(lowestDistFromWater,
+                    y - sampleWater(x).height);
+            }
+        }
+        return lowestDistFromWater > 0.001;
     }
 }
