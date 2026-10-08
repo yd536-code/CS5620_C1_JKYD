@@ -1,6 +1,6 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
-import {AppState, Vec2} from "../../anigraph";
-import {BoatModel, ProjectShapeModel, SeaBodyFill, SeaModel} from "./nodes";
+import {AppState, Vec2, Color} from "../../anigraph";
+import {BoatModel, ProjectShapeModel, SeaBodyFill, SeaModel, LightningModel} from "./nodes";
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -39,9 +39,12 @@ export class ProjectSceneModel extends ASceneModel2D{
     sea!:   SeaModel;
     seaBody!: SeaBodyFill;
     boat!:  BoatModel;
+    lightning!:  LightningModel;
+
     async initScene(){
         this.sea = new SeaModel();
         this.seaBody = new SeaBodyFill(this.sea);
+        this.lightning = new LightningModel();
 
         this.boat = new BoatModel();
         this.boat.prsa.position.y = this.sea.sampleWaterAtX(0).height + 0.15;
@@ -50,6 +53,11 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.addNode(this.sea);
         this.addNode(this.seaBody);
         this.addNode(this.boat);
+
+        // Copy the boat's position so the bolts bottom tip meets it.
+        this.lightning.prsa.position = this.boat.prsa.position.clone();
+        //add lightning to the scene
+        this.addNode(this.lightning);
     }
 
     /**
@@ -67,12 +75,54 @@ export class ProjectSceneModel extends ASceneModel2D{
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
+
+        //lighting update and impact frame
+
+        let previousPhase = this.lightning.impactPhase;
+        this.lightning.timeUpdate(t);
+
+        //show the bolt at the boat when the impact frame is happeneing
+        if(this.lightning.impactActive){
+            this.lightning.prsa.position = this.boat.prsa.position.clone();
+            this.lightning.visible = true;
+        } else {
+            this.lightning.visible = false;
+        }
+
+        //the effect just ended:
+        // Only refresh colors when the phase changes.
+        if (previousPhase !== this.lightning.impactPhase) {
+            if (this.lightning.impactPhase === 1) {
+                this.boat.verts.FillColor(Color.Black());
+                this.sea.verts.FillColor(Color.Black());
+                this.seaBody.verts.FillColor(Color.Black());
+                //lightning color
+                this.lightning.verts.FillColor(Color.Black());
+            } else if (this.lightning.impactPhase === 2) {
+                this.boat.verts.FillColor(Color.White());
+                this.sea.verts.FillColor(Color.White());
+                this.seaBody.verts.FillColor(Color.White());
+                //lightning color
+                this.lightning.verts.FillColor(Color.White());
+            } else {
+                // Phase 0: restore the original colors.
+                this.boat.verts.FillColor(Color.FromString("#cf7049"));
+                this.sea.verts.FillColor(this.sea.SeaColor);
+                this.seaBody.verts.FillColor(this.seaBody.seaColor);
+            }
+
+            this.boat.signalGeometryUpdate();
+            this.sea.signalGeometryUpdate();
+            this.seaBody.signalGeometryUpdate();
+            this.lightning.signalGeometryUpdate();
+        }
     }
 
     /** Key presses, forwarded from the scene controller */
     onKeyDown(key: string){
         this.boat.onKeyPress(key);
         this.sea.onKeyPress(key);
+        this.lightning.onKeyPress(key);
     }
 
     /** Key releases, forwarded from the scene controller */

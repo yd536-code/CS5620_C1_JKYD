@@ -4,7 +4,7 @@ import {BoatModel} from "./BoatModel";
 @ALabel("BoatView")
 export class BoatView extends AGLNodeView {
     /** The graphic that draws the polygon. */
-    element!: APolygonGraphic2D;
+    boatGraphic!: APolygonGraphic2D;
 
     /** The model, typed as the class this view draws. */
     get model(): BoatModel {
@@ -16,14 +16,14 @@ export class BoatView extends AGLNodeView {
      * the view displays it and cleans it up when the view is released.
      */
     init(): void {
-        this.element = new APolygonGraphic2D();
-        this.element.init(this.model.verts, this.model.material);
-        this.registerAndAddGraphic(this.element);
+        this.boatGraphic = new APolygonGraphic2D();
+        this.boatGraphic.init(this.model.verts, this.model.material);
+        this.registerAndAddGraphic(this.boatGraphic);
 
         // // Rebuild the graphic whenever the model signals that its geometry changed.
-        // this.subscribe(this.model.addGeometryListener(()=>{
-        //     this.seaBody.setVerts2D(this.model.verts);
-        // }));
+        this.subscribe(this.model.addGeometryListener(()=>{
+            this.boatGraphic.setVerts2D(this.model.verts);
+         }));
 
         this.update();
     }

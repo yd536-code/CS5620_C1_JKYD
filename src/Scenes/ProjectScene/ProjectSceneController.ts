@@ -3,6 +3,7 @@ import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, ANodeModel2D,
 import {ProjectSceneModel} from "./ProjectSceneModel";
 import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill} from "./nodes";
 import {SeaBodyView} from "./nodes/SeaBodyView";
+import {LightningModel, LightningView} from "./nodes";
 
 /**
  * The scene controller. It does two things:
@@ -29,6 +30,18 @@ export class ProjectSceneController extends ASceneController2D{
         this.setClearColor(Color.FromString("#dcf4ee"));
     }
 
+    timeUpdate() {
+        super.timeUpdate();
+
+        if (this.model.lightning.impactPhase === 1) {
+            this.setClearColor(Color.White());
+        } else if (this.model.lightning.impactPhase === 2) {
+            this.setClearColor(Color.Black());
+        } else {
+            this.setClearColor(Color.FromString("#dcf4ee"));
+        }
+    }
+
     /**
      * Pairs each model class with the view class that draws it. When a model of one of these classes is added to the
      * scene, the controller creates a view of the matching class for it. A spec doesn't apply to a subclass that has
@@ -40,6 +53,7 @@ export class ProjectSceneController extends ASceneController2D{
         this.addModelViewSpec(SeaModel, SeaView);
         this.addModelViewSpec(BoatModel, BoatView);
         this.addModelViewSpec(SeaBodyFill, SeaBodyView);
+        this.addModelViewSpec(LightningModel, LightningView);
     }
 
     /**
