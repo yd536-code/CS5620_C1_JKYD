@@ -3,11 +3,14 @@ import {SeaModel} from "./SeaModel";
 
 @ASerializable("SeaBodyFill")
 export class SeaBodyFill extends LineModel2D {
-    nCopies = 5;              // adjust to appropriately fill the sea
+    nCopies = 6;              // adjust to appropriately fill the sea
     seaColor = Color.Black();  // initialize a black color (arbitrary)
     copyColors: Color[] = Array(this.nCopies).fill(this.seaColor);
 
-    static time: number = 0;   // time of current frame
+    vanishPointPos: Vec2 = V2(0, 0); // default vanishing point @screen center
+    vSceneFOV = Math.PI/4;    // heuristic Vertical Field of View of Scene (45-deg)
+
+    time: number = 0;   // time of current frame
 
     SamplePts: number[] = [];
     constructor(CurSea: SeaModel) {
@@ -22,44 +25,37 @@ export class SeaBodyFill extends LineModel2D {
         this.lineWidth = 0.1;
     }
 
-    updateWaterBody(t: number) {
-        const waveAmp = SeaModel.WaveAmplitude;
-        const waveNumber = 2 * Math.PI / SeaModel.Wavelength;
-        let waveTraveled = SeaModel.waveTravel;
-
-        for (let i = 0; i < SeaModel.NSamples; ++i) {
-            const x = this.SamplePts[i];
-            const waterHeight = waveAmp * Math.sin(waveNumber
-                * (x - waveTraveled)) + SeaModel.ripple[i];
-            this.verts.position.setAt( i, V2(x, waterHeight) );
-        }
-        this.signalGeometryUpdate();  // tell the view to re-draw
-    }
-
     getVertsForCopy(copyIdx: number): Mat3 {
-        const waveAmp = SeaModel.WaveAmplitude;
-        const waveNumber = 2 * Math.PI / SeaModel.Wavelength;
-        let waveTraveled = SeaModel.waveTravel;
-        const dt = 1/60;
+        const waterYRef = SeaModel.deGlobalWarmer;  // reference waterline y-position
 
-        waveTraveled = SeaModel.waveTravel
-            -(SeaModel.waveSpeed)
-            * (copyIdx/this.nCopies) * SeaBodyFill.time * dt;
+        // shift the current copy of waterline downward (from global 0)
+        let yShift = -10 / (1-
+            (this.nCopies-copyIdx) / (this.nCopies+1) * (1-10/SeaModel.deGlobalWarmer)
+        );
+        const PerspectiveDepthMultiplier =
+              (this.vanishPointPos.y - yShift)
+            / (this.vanishPointPos.y + waterYRef);
+
+        const waveAmp = SeaModel.WaveAmplitude * PerspectiveDepthMultiplier;
+        const wavelength = SeaModel.Wavelength * PerspectiveDepthMultiplier;
+
+        const waveTravel = SeaModel.waveTravel * PerspectiveDepthMultiplier + copyIdx**2;
 
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.SamplePts[i];
-            const waterHeight = waveAmp * Math.sin(waveNumber
-                * (x - waveTraveled))
-                + SeaModel.ripple[i];
+            const waterHeight = waveAmp * Math.sin(2*Math.PI/wavelength
+                * (x - waveTravel));
             this.verts.position.setAt( i, V2(x, waterHeight) );
         }
-        const y = -1 - copyIdx**1.4;
-        return Mat3.Translation2D(0,y);
+        return Mat3.Translation2D(0, yShift);
     }
 
+    previousTime?: number;
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
-        this.updateWaterBody(t);
-        SeaBodyFill.time = t;
+        this.previousTime = (this.time === undefined)
+            ? 0 : Math.min(0.05, t - this.time);
+        this.time = t;
+        this.signalGeometryUpdate();
     }
 }

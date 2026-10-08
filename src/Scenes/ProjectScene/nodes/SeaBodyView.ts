@@ -1,10 +1,10 @@
 import {AGLNodeView, ALabel, ALineGraphic, ALineMaterialModel, Color, Mat3} from "../../../anigraph";
 import {SeaBodyFill} from "./SeaBodyFill";
+import {SeaModel} from "./SeaModel";
 
 @ALabel("SeaBodyView")
 export class SeaBodyView extends AGLNodeView {
-    seaBody!: ALineGraphic;      // actual waterline for physics
-    copies: ALineGraphic[] = []; // One graphic per copy
+    copies: ALineGraphic[] = []; // One graphic per copy of waterline
 
     /** The model, typed as the class this view draws. */
     get model(): SeaBodyFill {
@@ -16,16 +16,11 @@ export class SeaBodyView extends AGLNodeView {
      * the view displays it and cleans it up when the view is released.
      */
     init(): void {
-        let material = ALineMaterialModel.GlobalInstance.CreateMaterial();
-        this.seaBody = new ALineGraphic();
-        this.seaBody.init(this.model.verts, material);
         this.createCopies();
         this.updateCopies();
-        // this.registerAndAddGraphic(this.seaBody);
         this.update();
 
         this.subscribe(this.model.addGeometryListener(()=>{
-            this.seaBody.setVerts2D(this.model.verts);
             if(this.copies.length !== this.model.nCopies)
                 this.createCopies();
             this.updateCopies();
@@ -39,16 +34,15 @@ export class SeaBodyView extends AGLNodeView {
         for (let i = 0; i < this.model.nCopies; ++i) {
             const copy = new ALineGraphic();
             copy.init(this.model.verts, ALineMaterialModel.GlobalInstance.CreateMaterial());
+            copy.setLineWidth(SeaModel.SeaLineWidth * 2 + 0.004 * i);
             this.registerAndAddGraphic(copy);
             this.copies.push(copy);
-            copy.setLineWidth(0.03 + 0.01*i);
         }
     }
     updateCopies() {
-        const time = SeaBodyFill.time;
         for (let i = 0; i < this.model.nCopies; ++i) {
+            this.copies[i].setTransform2D(this.model.getVertsForCopy(i), 0.001*(i+1));
             this.copies[i].setVerts2D(this.model.verts);
-            this.copies[i].setTransform2D(this.model.getVertsForCopy(i), 0.001*i);
         }
     }
 

@@ -12,9 +12,10 @@ export class SeaModel extends LineModel2D {
     static Density = 1000;  // water: kg/m3
     static SeaDepth= 10;    // height (passed to SeaBodyFill to actually create seaBody as an area)
     static SeaHalfWidth = SeaModel.SeaDepth; // width of seaBody shape (1:1 aspect ratio)
+    static SeaLineWidth = 0.002;
     SeaColor = Color.FromString("#4587f8");
 
-    deGlobalWarmer = 0; // distance below horizontal center of the screen
+    static deGlobalWarmer = 1; // distance below horizontal center of the screen
 
     static waveSpeed = 3;
     static WaveTopSpeed = 10;
@@ -38,9 +39,9 @@ export class SeaModel extends LineModel2D {
         super();
         for (let i = 0; i < SeaModel.NSamples; ++i) {
             const x = this.xForIdxOf(i);
-            this.verts.addVertex(V2(x,-this.deGlobalWarmer), this.SeaColor);
+            this.verts.addVertex(V2(x,-SeaModel.deGlobalWarmer), this.SeaColor);
         }
-        this.lineWidth = 0.001;
+        this.lineWidth = SeaModel.SeaLineWidth;
     }
 
     private PressedKeys = new Set<string>();
@@ -60,12 +61,8 @@ export class SeaModel extends LineModel2D {
     }
 
     // Advance water
-    lastTime?: number;
     static waveTravel: number = 0;
-    updateWater(t: number) {
-        const dt = (this.lastTime === undefined) ? 0 : Math.min(t - this.lastTime, 1/60);
-        this.lastTime = t;
-
+    updateWater(t: number, dt: number) {
         SeaModel.waveSpeed = Math.max(-SeaModel.WaveTopSpeed,
             Math.min(SeaModel.WaveTopSpeed,
                 SeaModel.waveSpeed + this.waveThrottle*SeaModel.WaveAccel*dt)
@@ -112,7 +109,7 @@ export class SeaModel extends LineModel2D {
             const x = this.xForIdxOf(i);
             const k = 2 * Math.PI / lambda;
             const y = waveAmp * Math.sin(k * (x - SeaModel.waveTravel)) + SeaModel.ripple[i];
-            this.verts.position.setAt(i, V2(x,y-this.deGlobalWarmer));
+            this.verts.position.setAt(i, V2(x,y-SeaModel.deGlobalWarmer));
         }
         this.signalGeometryUpdate();  // tell the view to re-draw
     }
@@ -159,8 +156,13 @@ export class SeaModel extends LineModel2D {
                  velocityX: 0, velocityY: YVelocityInterpolated, };
     }
 
+    lastTime?: number;
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
-        this.updateWater(t);
+        const dt = (this.lastTime === undefined)
+            ? 0 : Math.min(0.05, t - this.lastTime);
+        this.lastTime = t;
+
+        this.updateWater(t, dt);
     }
 }

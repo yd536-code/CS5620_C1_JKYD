@@ -115,11 +115,8 @@ export class BoatModel extends ANodeModel2D {
             Math.min(XAccel, XSpeedDiff)
         );
     }
-    lastTime?: number;
-    updateBoat(t:number, sampleWater: SampleWater) {
-        const dt = (this.lastTime === undefined) ? 0 : Math.max(t - this.lastTime, 0);
-        this.lastTime = t;
 
+    updateBoat(t:number, dt: number, sampleWater: SampleWater) {
         const Position = this.prsa.position;
         const Rotation = this.prsa.rotation;
         const Velocity = BoatModel.Velocity;
@@ -128,17 +125,6 @@ export class BoatModel extends ANodeModel2D {
         const SinRot = Math.sin(Rotation);
         const TargetSpeed = this.curThrottle * BoatModel.TopSpeed;
 
-        // const hullBotCenter = V2(
-        //     (this.hull[3].x+this.hull[2].x) / 2,
-        //     (this.hull[3].y+this.hull[2].y) / 2,
-        // );
-        // const WaterPts = [this.hull[2], hullBotCenter, this.hull[3]]
-        //     .map(vert=> {
-        //         const offset = this.getOffsetFromAnchor(vert);
-        //         return {offsetX: offset.x, offsetY: offset.y,
-        //                 waterPt: sampleWater(Position.x + offset.x),
-        //         };
-        //     });
         const botSampleCnt = 10;
         const botLeft = this.hull[2];
         const botRight = this.hull[3];
@@ -318,9 +304,14 @@ export class BoatModel extends ANodeModel2D {
         }
     }
 
+    lastTime?: number;
     timeUpdate(t: number, ...args: any[]) {
         super.timeUpdate(t, ...args);
-        this.updateBoat(t, this.sampleWater);
+        const dt = (this.lastTime === undefined)
+            ? 0 : Math.min(0.05, t - this.lastTime);
+        this.lastTime = t;
+
+        this.updateBoat(t, dt, this.sampleWater);
     }
 
     jump(sampleWater: SampleWater) {    // For boat's jumping action
