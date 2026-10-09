@@ -62,14 +62,22 @@ export class SeaModel extends LineModel2D {
 
     // Advance water
     static waveTravel: number = 0;
-    updateWater(t: number, dt: number) {
-        SeaModel.waveSpeed = Math.max(-SeaModel.WaveTopSpeed,
-            Math.min(SeaModel.WaveTopSpeed,
-                SeaModel.waveSpeed + this.waveThrottle*SeaModel.WaveAccel*dt)
-        );
+    updateWater(t: number, dt: number,
+                BoatProp0toBound: number, BoatThrollet: number) {
+        // proportion of max speed addition from that of boat due to boundary ~[0,1]
+        const TakeSpeedFromBoat = Math.abs(BoatProp0toBound);
+        const newTopSpeed = SeaModel.WaveTopSpeed + 2*BoatModel.TopSpeed * TakeSpeedFromBoat;
+        const boatBoundCausedAccel = 3 * BoatModel.ThrustAccel * BoatProp0toBound;
+        const boatThrolletCausedAccel = BoatModel.ThrustAccel * BoatThrollet
+            * (BoatThrollet === Math.sign(SeaModel.waveSpeed)
+                ? 7 : 3);
+        SeaModel.waveSpeed += (this.waveThrottle * SeaModel.WaveAccel
+                            - boatBoundCausedAccel - boatThrolletCausedAccel) * dt;
+        SeaModel.waveSpeed = Math.max(-newTopSpeed,
+            Math.min(newTopSpeed, SeaModel.waveSpeed)
+        );  // clamp to top wave speed
 
         SeaModel.waveTravel += SeaModel.waveSpeed * dt;
-        // const waveSpeed = SeaModel.WaveTopSpeed;   // wave propagation velocity (m/s)
         const waveAmp = SeaModel.WaveAmplitude; // wave amplitude (m)
         const lambda = SeaModel.Wavelength;     // wavelength (m)
         const dx2 = SeaModel.NSpacing**2;       // squared spatial resolution (Δx)²
@@ -163,6 +171,6 @@ export class SeaModel extends LineModel2D {
             ? 0 : Math.min(0.05, t - this.lastTime);
         this.lastTime = t;
 
-        this.updateWater(t, dt);
+        this.updateWater(t, dt, args[0], args[1]);
     }
 }

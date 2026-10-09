@@ -13,7 +13,6 @@ export class BoatModel extends ANodeModel2D {
     static BoatVolume = BoatModel.BoatBreadth*(BoatModel.BoatTopWidth+BoatModel.BoatBotWidth)*BoatModel.BoatHeight/2;
     static Mass = 400 * BoatModel.BoatVolume;
     readonly WaterDensity = SeaModel.Density;
-    XPushFromWaterCoeff = 0;  // how much the water pulls the boat horizontally
 
     get hull() {
         return Array.from({length: this.verts.nVerts},
@@ -34,9 +33,9 @@ export class BoatModel extends ANodeModel2D {
     static Throttle = 0;   // {-1, 1} Full left or right
     static Velocity = V3(0,0,0);   // X, Y, and angular Velocity
 
-    static TopSpeed = 6;
-    static ThrustAccel = 14;
-    static Deceleration = 2;
+    static TopSpeed = 3;
+    static ThrustAccel = 1.5;
+    static Deceleration = 4;
 
     private DashKey = "Control";
     private DashMultiplier = 2;
@@ -116,14 +115,19 @@ export class BoatModel extends ANodeModel2D {
         );
     }
 
+    get Prop0toBound(): number {
+        return this.prsa.position.x / this.ViewBoundary;
+    } // the proportion of boat.x from origin to either boundary ~[-1,1]
+      // to pass to the waterline
+
+    ViewBoundary: number = 4;  // Range from center the boat can go
     updateBoat(t:number, dt: number, sampleWater: SampleWater) {
         const Position = this.prsa.position;
         const Rotation = this.prsa.rotation;
-        const Velocity = BoatModel.Velocity;
-
+        let Velocity = BoatModel.Velocity;
         const CosRot = Math.cos(Rotation);
-        const SinRot = Math.sin(Rotation);
-        const TargetSpeed = this.curThrottle * BoatModel.TopSpeed;
+
+        const TargetSpeed = this.curThrottle * BoatModel.TopSpeed ;
 
         const botSampleCnt = 10;
         const botLeft = this.hull[2];
@@ -226,7 +230,6 @@ export class BoatModel extends ANodeModel2D {
 
             const ForceX = DampForceX;
             const ForceY = Buoyancy + DampForceY;
-            WaterForce.X += ForceX;
             WaterForce.Y += ForceY;
 
             WaterForce.Torque += BuoOffsetFromCOMX * ForceY * 1.1
@@ -237,7 +240,15 @@ export class BoatModel extends ANodeModel2D {
             normalSamples += wetVerts.Area;
         }
 
-        // Is dashing && A/D key not released
+        let BoundXAdjust = 1;
+        if (Velocity.x !== 0 && Math.sign(Velocity.x) === Math.sign(Position.x)) {
+            if (Math.abs(Position.x) >= 0.8*this.ViewBoundary &&
+                this.curThrottle == -Math.sign(Position.x)) {
+                Velocity.x = 0;
+            } else
+                BoundXAdjust = 1 - Math.abs(Math.pow(Position.x / this.ViewBoundary, 2));
+        } else
+            BoundXAdjust = 1;
         if (this.DashTimer > 0 && this.curThrottle !== 0) {
             this.StopTimer = 0.35;
             this.DashTimer -= dt;
@@ -257,12 +268,13 @@ export class BoatModel extends ANodeModel2D {
                 );
             }
         }
-        // add horizontal pull to Velocity.x
-        Velocity.x += this.XPushFromWaterCoeff * (WaterForce.X/BoatModel.Mass) * dt;
         Velocity.y += (WaterForce.Y / BoatModel.Mass   // Vertical buoyancy acceleration
                 - 9.81) * dt;
-        this.prsa.position.x += Velocity.x * dt;
+
         this.prsa.position.y += Velocity.y * dt;
+        this.prsa.position.x += Velocity.x * dt * BoundXAdjust;
+        this.prsa.position.x = Math.max(-this.ViewBoundary,
+            Math.min(this.ViewBoundary, this.prsa.position.x)); // prevent from exiting boundary
 
         let RestoreTorque = 0;
         if (isTouchingWater && normalSamples > 1e-6) {

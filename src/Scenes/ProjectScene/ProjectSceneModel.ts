@@ -57,12 +57,7 @@ export class ProjectSceneModel extends ASceneModel2D{
      * @param t the current time, in seconds
      */
     timeUpdate(t: number){
-        this.sea.timeUpdate(t);
-        this.sea.timeUpdate(t);
-
-        const SeaPts = Array.from( { length: this.sea.verts.nVerts},
-            (_,i) => this.sea.verts.vertexAt(i).y
-        );
+        this.sea.timeUpdate(t, this.boat.Prop0toBound, this.boat.curThrottle);
         this.seaBody.timeUpdate(t);
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
