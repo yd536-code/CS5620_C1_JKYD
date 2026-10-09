@@ -24,6 +24,8 @@ export class LightningView extends AGLNodeView {
         // Refresh the drawing when the model calls signalGeometryUpdate().
         this.subscribe(this.model.addGeometryListener(() => {
             this.lightningGraphic.setVerts2D(this.model.verts);
+            //lightning opacity for the after image
+            material.setValue("opacity", this.model.boltOpacity);
         }));
         this.update();
     }

@@ -1,9 +1,11 @@
 import {ASceneController2D} from "../../anigraph/starter/Scene2D";
-import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, ANodeModel2D, Color} from "../../anigraph";
+import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, ANodeModel2D, Color, V2, GetAppState} from "../../anigraph";
 import {ProjectSceneModel} from "./ProjectSceneModel";
 import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill} from "./nodes";
 import {SeaBodyView} from "./nodes/SeaBodyView";
 import {LightningModel, LightningView} from "./nodes";
+import {FireModel} from "./nodes/FireModel";
+import {FireView} from "./nodes/FireView";
 
 /**
  * The scene controller. It does two things:
@@ -16,6 +18,8 @@ import {LightningModel, LightningView} from "./nodes";
  */
 export class ProjectSceneController extends ASceneController2D{
     /** The scene model, typed as this scene's class. */
+    shakeOffset = V2(0,0);
+
     get model(): ProjectSceneModel{
         return this._model as ProjectSceneModel;
     }
@@ -32,6 +36,22 @@ export class ProjectSceneController extends ASceneController2D{
 
     timeUpdate() {
         super.timeUpdate();
+
+        //shaking the camera!
+        let camera = this.model.cameraModel;
+
+        //remove the prev shake so the camera dose not drift
+        camera.prsa.position = camera.prsa.position.minus(this.shakeOffset);
+        this.shakeOffset = V2(0, 0);
+
+        //shake it!
+        if(this.model.lightning.impactActive){
+            let strength = GetAppState().getState("CameraShake")
+
+            this.shakeOffset = V2((Math.random()*2-1)*strength, (Math.random()*2-1)*strength);
+
+            camera.prsa.position = camera.prsa.position.plus(this.shakeOffset);
+        }
 
         if (this.model.lightning.impactPhase === 1) {
             this.setClearColor(Color.White());
@@ -54,6 +74,7 @@ export class ProjectSceneController extends ASceneController2D{
         this.addModelViewSpec(BoatModel, BoatView);
         this.addModelViewSpec(SeaBodyFill, SeaBodyView);
         this.addModelViewSpec(LightningModel, LightningView);
+        this.addModelViewSpec(FireModel, FireView);
     }
 
     /**

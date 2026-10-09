@@ -1,6 +1,8 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
-import {AppState, Vec2, Color} from "../../anigraph";
+import {AppState, Vec2, Color, V2} from "../../anigraph";
 import {BoatModel, ProjectShapeModel, SeaBodyFill, SeaModel, LightningModel} from "./nodes";
+import {FireModel} from "./nodes/FireModel";
+
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -22,6 +24,10 @@ export class ProjectSceneModel extends ASceneModel2D{
     initAppState(appState: AppState){
         super.initAppState(appState);
         ProjectShapeModel.SetAppState(appState);
+        LightningModel.SetAppState(appState);
+        FireModel.SetAppState(appState);
+        //we will intreduce camera shake here
+        appState.addSliderIfMissing("CameraShake", 0.2, 0, 1, 0.01);
     }
 
     /**
@@ -30,6 +36,7 @@ export class ProjectSceneModel extends ASceneModel2D{
     async PreloadAssets(): Promise<void> {
         await super.PreloadAssets();
         await ProjectShapeModel.PreloadAssets();
+        await FireModel.PreloadAssets();
     }
 
     /**
@@ -40,6 +47,7 @@ export class ProjectSceneModel extends ASceneModel2D{
     seaBody!: SeaBodyFill;
     boat!:  BoatModel;
     lightning!:  LightningModel;
+    fire!:  FireModel;
 
     async initScene(){
         this.sea = new SeaModel();
@@ -58,6 +66,11 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.lightning.prsa.position = this.boat.prsa.position.clone();
         //add lightning to the scene
         this.addNode(this.lightning);
+
+        //adding the fire
+        this.fire = new FireModel();
+        this.fire.zValue = 0.02;
+        this.addNode(this.fire);
     }
 
     /**
@@ -75,17 +88,29 @@ export class ProjectSceneModel extends ASceneModel2D{
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
+        //fire where the boat is at
+        let width = BoatModel.BoatTopWidth * 0.4;
+        let height = BoatModel.BoatHeight / 2;
+        let boatTransform = this.boat.getWorldTransform();
+
+        this.fire.emitterPos = boatTransform.times(V2(-width, height));
+        this.fire.emitterEnd = boatTransform.times(V2(width, height));
 
         //lighting update and impact frame
-
         let previousPhase = this.lightning.impactPhase;
         this.lightning.timeUpdate(t);
+
+        //fire knows impact frame phase
+        this.fire.impactPhase = this.lightning.impactPhase;
+        this.fire.timeUpdate(t);
 
         //show the bolt at the boat when the impact frame is happeneing
         if(this.lightning.impactActive){
             this.lightning.prsa.position = this.boat.prsa.position.clone();
             this.lightning.visible = true;
-        } else {
+        } else if(this.lightning.afterimageActive) {
+            this.lightning.visible = true;
+        } else{
             this.lightning.visible = false;
         }
 
@@ -109,13 +134,17 @@ export class ProjectSceneModel extends ASceneModel2D{
                 this.boat.verts.FillColor(Color.FromString("#cf7049"));
                 this.sea.verts.FillColor(this.sea.SeaColor);
                 this.seaBody.verts.FillColor(this.seaBody.seaColor);
+                //the after image of the lightning
+                this.lightning.verts.FillColor(Color.FromString("#7050d0"));
+                this.lightning.verts.FillColor(Color.White());
             }
 
             this.boat.signalGeometryUpdate();
             this.sea.signalGeometryUpdate();
             this.seaBody.signalGeometryUpdate();
-            this.lightning.signalGeometryUpdate();
         }
+
+        this.lightning.signalGeometryUpdate();
     }
 
     /** Key presses, forwarded from the scene controller */
@@ -123,6 +152,10 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.boat.onKeyPress(key);
         this.sea.onKeyPress(key);
         this.lightning.onKeyPress(key);
+
+        if (key.toLowerCase() == "r"){
+            this.fire.startBurning();
+        }
     }
 
     /** Key releases, forwarded from the scene controller */
