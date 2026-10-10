@@ -89,6 +89,9 @@ export class BoatModel extends ANodeModel2D {
         return { x: offsetX, y: offsetY };
     }
 
+    mast = BoatModel.makeMast();
+    sail = BoatModel.makeSail();
+
     constructor() {
         super();
         this.setVerts(BoatModel.makeBoat());

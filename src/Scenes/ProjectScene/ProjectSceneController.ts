@@ -12,6 +12,8 @@ import {LightningModel, LightningView} from "./nodes";
 import {FireModel} from "./nodes/FireModel";
 import {FireView} from "./nodes/FireView";
 import {PolygonModel2D, PolygonView2D} from "../../anigraph/starter/nodes/polygon2D";
+import {HillsModel} from "./nodes/HillsModel";
+import {HillsView} from "./nodes/HillsView";
 
 /**
  * The scene controller. It does two things:
@@ -85,6 +87,7 @@ export class ProjectSceneController extends ASceneController2D{
         this.addModelViewSpec(UniverseExiter, AGroupNodeView);
         this.addModelViewSpec(ASVGLModel2D, ASVGLView);
         this.addModelViewSpec(LabCat, AGroupNodeView);
+        this.addModelViewSpec(HillsModel, HillsView);
     }
 
     /**

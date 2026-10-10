@@ -25,15 +25,17 @@ export class BoatView extends AGLNodeView {
 
         //adding the mast to the boad
         this.mastGraphic = new APolygonGraphic2D();
-        this.mastGraphic.init(BoatModel.makeMast(), this.model.material);
+        this.mastGraphic.init(this.model.mast, this.model.material);
         this.registerAndAddGraphic(this.mastGraphic);
         //drawing the sail besides the mast
         this.sailGraphic = new APolygonGraphic2D();
-        this.sailGraphic.init(BoatModel.makeSail(), this.model.material);
+        this.sailGraphic.init(this.model.sail, this.model.material);
         this.registerAndAddGraphic(this.sailGraphic);
         // // Rebuild the graphic whenever the model signals that its geometry changed.
         this.subscribe(this.model.addGeometryListener(()=>{
             this.boatGraphic.setVerts2D(this.model.verts);
+            this.mastGraphic.setVerts2D(this.model.mast);
+            this.sailGraphic.setVerts2D(this.model.sail);
          }));
 
         this.update();

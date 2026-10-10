@@ -10,4 +10,5 @@ export class FireParticle implements Particle2D {
     lifespan = 1.5;
     visible = false;
     depth = 0;
+    isSpark = false;
 }

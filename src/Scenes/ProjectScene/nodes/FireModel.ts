@@ -46,6 +46,7 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
         this.burning = true;
         this.burnTimeLeft = GetAppState().getState("FireBurnDuration");
         this.emitTimer = 0
+        this.emitSparks();
     }
 
     initParticles(nParticles: number) {
@@ -75,6 +76,8 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
         let particle = this.particles[this.nextParticle];
 
         this.nextParticle++;
+
+        particle.isSpark = false;
 
         if(this.nextParticle >= this.particles.length) {
             this.nextParticle = 0;
@@ -113,6 +116,34 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
         particle.visible = true;
 
         particle.t0 = -1;
+
+        this.signalParticlesUpdated();
+    }
+
+    // Create a burst of sparks from the middle of the deck.
+    emitSparks() {
+        for (let i = 0; i < 25; i++) {
+            let particle = this.particles[this.nextParticle];
+
+            this.nextParticle++;
+            if (this.nextParticle >= this.particles.length) {
+                this.nextParticle = 0;
+            }
+
+            particle.isSpark = true;
+            particle.position = this.emitterPos.plus(this.emitterEnd).times(0.5);
+            particle.velocity = V2(
+                (Math.random() - 0.5) * 12,
+                3 + Math.random() * 1.5
+            );
+
+            particle.size = 0.18 + Math.random() * 0.12;
+            particle.startSize = particle.size;
+            particle.lifespan = 2 + Math.random() * 0.6;
+            particle.color = Color.FromString("#66ffff");
+            particle.t0 = -1;
+            particle.visible = true;
+        }
 
         this.signalParticlesUpdated();
     }
@@ -160,6 +191,11 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
                 if(age >= particle.lifespan){
                     particle.visible = false;
                 } else {
+                    //if its sparks they slow down and fall
+                    if (particle.isSpark) {
+                        particle.velocity.y -= 6 * dt;
+                    }
+
                     //changing the speed of the fire to be the speed of the water
                     particle.position.x += this.waterMovement;
                     //updating position
@@ -170,31 +206,37 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
                     //updating color and making it change slowly
                     let progress = age / particle.lifespan;
 
-                    // Spread the smoke sideways during the second half of its life.
-                    if (progress > 0.5) {
-                        if (particle.velocity.x < 0) {
-                            particle.velocity.x -= 0.4 * dt;
-                        } else {
-                            particle.velocity.x += 0.4 * dt;
+                    //if its spark do this
+                    if(particle.isSpark){
+                        particle.size = particle.startSize * (1-0.5*progress);
+                        particle.color = Color.FromString("#fff2a0");
+                    } else{
+                        // Spread the smoke sideways during the second half of its life.
+                        if (progress > 0.5) {
+                            if (particle.velocity.x < 0) {
+                                particle.velocity.x -= 0.4 * dt;
+                            } else {
+                                particle.velocity.x += 0.4 * dt;
+                            }
                         }
-                    }
 
-                    //smoke spreads out good
-                    particle.size = particle.startSize * (1 + progress);
+                        //smoke spreads out good
+                        particle.size = particle.startSize * (1 + progress);
 
-                    //changing slowly to orange and then smoke
-                    if (progress < 0.5) {
-                        let amount = progress * 2;
+                        //changing slowly to orange and then smoke
+                        if (progress < 0.5) {
+                            let amount = progress * 2;
 
-                        particle.color.r = 1;
-                        particle.color.g = 0.9 - 0.4 * amount;
-                        particle.color.b = 0.4 - 0.3 * amount;
-                    } else {
-                        let amount = (progress - 0.5) * 2;
+                            particle.color.r = 1;
+                            particle.color.g = 0.9 - 0.4 * amount;
+                            particle.color.b = 0.4 - 0.3 * amount;
+                        } else {
+                            let amount = (progress - 0.5) * 2;
 
-                        particle.color.r = 1 - 0.5 * amount;
-                        particle.color.g = 0.5;
-                        particle.color.b = 0.1 + 0.4 * amount;
+                            particle.color.r = 1 - 0.5 * amount;
+                            particle.color.g = 0.5;
+                            particle.color.b = 0.1 + 0.4 * amount;
+                        }
                     }
 
                     //changing the color of the fire so in impactfram it looks right

@@ -15,6 +15,7 @@ export class CosmicMicrowaveBackground {
 
         const theBackground = new PolygonModel2D(theBackgroundVerts);
         theBackground.setMaterial(AssetManager.CreateBasicMaterial(color));
+        theBackground.zValue = -0.2; // Behind the hills.
         return theBackground;
     }
 }

@@ -2,6 +2,7 @@ import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
 import {ANodeModel2D, AppState, Color, Mat3, V2, Vec2} from "../../anigraph";
 import {BoatModel, SeaBodyFill, SeaModel, UniverseExiter, LabCat, LightningModel} from "./nodes";
 import {FireModel} from "./nodes/FireModel";
+import {HillsModel} from "./nodes/HillsModel";
 
 
 /**
@@ -46,6 +47,7 @@ export class ProjectSceneModel extends ASceneModel2D{
     sea!:     SeaModel;
     seaBody!: SeaBodyFill;
     boat!:    BoatModel;
+    hills!:     HillsModel;
     theUniverse!: UniverseExiter;
     objInUniverse: ANodeModel2D[] = [];
     labCat!:    LabCat;
@@ -53,11 +55,15 @@ export class ProjectSceneModel extends ASceneModel2D{
     fire!:  FireModel;
 
     async initScene(){
+        this.hills = new HillsModel();
+        this.hills.prsa.position.y = 2; //move it up
+        this.hills.zValue = -0.1; // Behind the boat and water.
+        this.addNode(this.hills);
         this.sea = new SeaModel();
         this.seaBody = new SeaBodyFill(this.sea);
         this.lightning = new LightningModel();
 
-        this.boat = new BoatModel();
+        this.boat = new BoatModel()
         this.boat.prsa.position.y = this.sea.sampleWaterAtX(0).height + 0.15;
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
 
@@ -80,6 +86,7 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.objInUniverse.push(this.boat);
         this.objInUniverse.push(this.lightning);
         this.objInUniverse.push(this.fire);
+        this.objInUniverse.push(this.hills);
 
         this.theUniverse = new UniverseExiter();
         for (let obj of this.objInUniverse) {
@@ -133,6 +140,13 @@ export class ProjectSceneModel extends ASceneModel2D{
         let previousPhase = this.lightning.impactPhase;
         this.lightning.timeUpdate(t);
 
+        // Hide the hills during the impact flash.
+        if (this.lightning.impactActive) {
+            this.hills.visible = false;
+        } else {
+            this.hills.visible = true;
+        }
+
         //fire knows impact frame phase
         this.fire.impactPhase = this.lightning.impactPhase;
         this.fire.timeUpdate(t);
@@ -153,12 +167,17 @@ export class ProjectSceneModel extends ASceneModel2D{
         if (previousPhase !== this.lightning.impactPhase) {
             if (this.lightning.impactPhase === 1) {
                 this.boat.verts.FillColor(Color.Black());
+                this.boat.mast.FillColor(Color.Black());
+                this.boat.sail.FillColor(Color.Black());
                 this.sea.verts.FillColor(Color.Black());
                 this.seaBody.verts.FillColor(Color.Black());
                 //lightning color
                 this.lightning.verts.FillColor(Color.Black());
+                //hill
             } else if (this.lightning.impactPhase === 2) {
                 this.boat.verts.FillColor(Color.White());
+                this.boat.mast.FillColor(Color.White());
+                this.boat.sail.FillColor(Color.White());
                 this.sea.verts.FillColor(Color.White());
                 this.seaBody.verts.FillColor(Color.White());
                 //lightning color
@@ -166,6 +185,8 @@ export class ProjectSceneModel extends ASceneModel2D{
             } else {
                 // Phase 0: restore the original colors.
                 this.boat.verts.FillColor(Color.FromString("#cf7049"));
+                this.boat.mast.FillColor(Color.FromString("#805030"));
+                this.boat.sail.FillColor(Color.FromString("#fff0cf"));
                 this.sea.verts.FillColor(this.sea.SeaColor);
                 this.seaBody.verts.FillColor(this.seaBody.seaColor);
                 //the after image of the lightning
