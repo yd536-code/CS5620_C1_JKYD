@@ -2,6 +2,7 @@ import {AssetManager, ASerializable, Vec2, V2, Color} from "../../../anigraph";
 import {AInstancedParticleSystemModel2D} from "../../../anigraph/starter/nodes/instancedparticlesystem2d/AInstancedParticleSystemModel2D";
 import {FireParticle} from "./FireParticle";
 import {AppState, GetAppState} from "../../../anigraph";
+import {SeaModel} from "./SeaModel";
 
 
 @ASerializable("FireModel")
