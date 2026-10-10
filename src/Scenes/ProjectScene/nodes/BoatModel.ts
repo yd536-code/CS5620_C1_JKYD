@@ -108,6 +108,31 @@ export class BoatModel extends ANodeModel2D {
         return theBoat;
     }
 
+    static makeMast(): Polygon2D{
+        let mast = Polygon2D.CreateForRendering(true);
+        let color = Color.FromString("#805030");
+        let deckHeight = BoatModel.BoatHeight / 2;
+
+        mast.addVertex(V2(-0.06, deckHeight + 2), color);
+        mast.addVertex(V2(0.06, deckHeight + 2), color);
+        mast.addVertex(V2(0.06, deckHeight), color);
+        mast.addVertex(V2(-0.06, deckHeight), color);
+
+        return mast;
+    }
+
+    static makeSail(): Polygon2D{
+        let sail = Polygon2D.CreateForRendering(true);
+        let color = Color.FromString("#fff0cf");
+        let deckHeight = BoatModel.BoatHeight / 2;
+
+        sail.addVertex(V2(0.08, deckHeight + 1.8), color);
+        sail.addVertex(V2(1.1, deckHeight + 0.3), color);
+        sail.addVertex(V2(0.08, deckHeight + 0.3), color);
+
+        return sail;
+    }
+
     private moveXVelocityToward(targetXSpeed: number, XAccel: number) {
         const XSpeedDiff = targetXSpeed - BoatModel.Velocity.x;
         BoatModel.Velocity.x += Math.max(-XAccel,

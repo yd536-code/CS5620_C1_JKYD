@@ -16,6 +16,7 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
     emitterPos = V2(0,0);
     emitterEnd = V2(0, 0);
     emitTimer = 0;
+    waterMovement = 0;
 
     constructor() {
         super();
@@ -160,6 +161,8 @@ export class FireModel extends AInstancedParticleSystemModel2D<FireParticle> {
                 if(age >= particle.lifespan){
                     particle.visible = false;
                 } else {
+                    //changing the speed of the fire to be the speed of the water
+                    particle.position.x += this.waterMovement;
                     //updating position
                     particle.position = particle.position.plus(
                         particle.velocity.times(dt)
