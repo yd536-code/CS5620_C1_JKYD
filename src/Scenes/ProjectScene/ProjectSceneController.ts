@@ -8,9 +8,7 @@ import {
 } from "../../anigraph";
 import {ProjectSceneModel} from "./ProjectSceneModel";
 import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill, SeaBodyView, UniverseExiter, LabCat} from "./nodes";
-import {LightningModel, LightningView} from "./nodes";
-import {FireModel} from "./nodes/FireModel";
-import {FireView} from "./nodes/FireView";
+import {LightningModel, LightningView, FireModel, FireView} from "./nodes";
 import {PolygonModel2D, PolygonView2D} from "../../anigraph/starter/nodes/polygon2D";
 
 /**
@@ -37,34 +35,36 @@ export class ProjectSceneController extends ASceneController2D{
      */
     async initScene(){
         await super.initScene();
-        this.setClearColor(Color.FromString("#6a6a6a"));
+        this.setClearColor(Color.FromString("#000000"));
     }
 
     timeUpdate() {
         super.timeUpdate();
 
-        //shaking the camera!
-        let camera = this.model.cameraModel;
+        if (!ProjectSceneModel.isFreezing) {
+            //shaking the camera!
+            let camera = this.model.cameraModel;
 
-        //remove the prev shake so the camera dose not drift
-        camera.prsa.position = camera.prsa.position.minus(this.shakeOffset);
-        this.shakeOffset = V2(0, 0);
+            //remove the prev shake so the camera dose not drift
+            camera.prsa.position = camera.prsa.position.minus(this.shakeOffset);
+            this.shakeOffset = V2(0, 0);
 
-        //shake it!
-        if(this.model.lightning.impactActive){
-            let strength = GetAppState().getState("CameraShake")
+            //shake it!
+            if (this.model.lightning.impactActive) {
+                let strength = GetAppState().getState("CameraShake")
 
-            this.shakeOffset = V2((Math.random()*2-1)*strength, (Math.random()*2-1)*strength);
+                this.shakeOffset = V2((Math.random() * 2 - 1) * strength, (Math.random() * 2 - 1) * strength);
 
-            camera.prsa.position = camera.prsa.position.plus(this.shakeOffset);
-        }
+                camera.prsa.position = camera.prsa.position.plus(this.shakeOffset);
+            }
 
-        if (this.model.lightning.impactPhase === 1) {
-            this.setClearColor(Color.White());
-        } else if (this.model.lightning.impactPhase === 2) {
-            this.setClearColor(Color.Black());
-        } else {
-            this.setClearColor(Color.FromString("#dcf4ee"));
+            if (this.model.lightning.impactPhase === 1) {
+                this.setClearColor(Color.White());
+            } else if (this.model.lightning.impactPhase === 2) {
+                this.setClearColor(Color.Black());
+            } else {
+                this.setClearColor(Color.FromString("#5c5555"));
+            }
         }
     }
 

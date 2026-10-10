@@ -1,8 +1,6 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
 import {ANodeModel2D, AppState, Color, Mat3, V2, Vec2} from "../../anigraph";
-import {BoatModel, SeaBodyFill, SeaModel, UniverseExiter, LabCat, LightningModel} from "./nodes";
-import {FireModel} from "./nodes/FireModel";
-
+import {BoatModel, SeaBodyFill, SeaModel, UniverseExiter, LabCat, LightningModel, FireModel} from "./nodes";
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -90,26 +88,33 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.addNode(this.labCat);
     }
 
-    isFreezing: boolean = false;
+    static isFreezing: boolean = false;
     timeWhenFreezed: number | null = null;
     contractSwitch: boolean = false;
-    expanSwitch: boolean = false;
+    expandSwitch: boolean = false;
     /**
      * Called once per frame by the scene controller. Node `timeUpdate`s are not called automatically: call each one.
      * @param t the current time, in seconds
      */
+    contractProgress: number = 0;
+    expandProgress: number = 0;
     timeUpdate(t: number){
-        this.timeWhenFreezed = this.isFreezing
+        this.timeWhenFreezed = ProjectSceneModel.isFreezing
             ? (this.timeWhenFreezed ??= t) : t;
 
         if (this.contractSwitch) {
-            const progress = this.theUniverse.contractTheUniverse(t);
-            if (progress >= 1)
+            this.contractProgress = this.theUniverse.contractTheUniverse(t);
+            if (this.contractProgress >= 1)
                 this.contractSwitch = false;
-        } else if (this.expanSwitch) {
-            this.theUniverse.prsa.scale = 1;
+        } else if (this.expandSwitch) {
+            this.expandProgress = this.theUniverse.expandTheUniverse(t);
+            if (this.expandProgress > 0.5)
+                this.seaBody.lineWidth = 0.005;
+            if (this.expandProgress >= 1) {
+                this.expandSwitch = false;
+            }
         }
-
+        const temp_t = t;
         t = this.timeWhenFreezed;
 
         this.sea.timeUpdate(t, this.boat.Prop0toBound, this.boat.curThrottle);
@@ -117,8 +122,9 @@ export class ProjectSceneModel extends ASceneModel2D{
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
+
         //fire where the boat is at
-        let width = BoatModel.BoatTopWidth * 0.4;
+        let width = BoatModel.BoatTopWidth;
         let height = BoatModel.BoatHeight / 2;
         let boatTransform = this.boat.getWorldTransform();
 
@@ -177,7 +183,7 @@ export class ProjectSceneModel extends ASceneModel2D{
 
     /** Key presses, forwarded from the scene controller */
     onKeyDown(key: string){
-        if (!this.isFreezing) {
+        if (!ProjectSceneModel.isFreezing) {
             this.boat.onKeyPress(key);
             this.sea.onKeyPress(key);
             this.lightning.onKeyPress(key);
@@ -185,15 +191,14 @@ export class ProjectSceneModel extends ASceneModel2D{
                 this.fire.startBurning();
         }
         if (key === "Escape") {
-            this.expanSwitch = false;
+            this.expandSwitch = false;
             this.contractSwitch = true;
             this.seaBody.lineWidth = 0;
-            this.isFreezing = true;
-        } else {
+            ProjectSceneModel.isFreezing = true;
+        } else if (key === "Enter") {
             this.contractSwitch = false;
-            this.expanSwitch = true;
-            this.seaBody.lineWidth = SeaModel.SeaLineWidth;
-            this.isFreezing = false;
+            this.expandSwitch = true;
+            ProjectSceneModel.isFreezing = false;
         }
     }
 

@@ -36,12 +36,10 @@ export class UniverseExiter extends AGroupNodeModel2D {
 
     t_contract_start: number | null = null;
     t_contract_length = 3;
-    t_last = -1;  // keep track of animation's end
     // pass the time-step scaling factor (for waterline width to narrow down accordingly)
     contractTheUniverse(t: number): number {
         if (this.t_contract_start === null)
             this.t_contract_start = t;
-        this.t_last = t;
         const progress = Math.max(0,Math.min(1,
             (t - this.t_contract_start)/this.t_contract_length)
         );  // clamped time ~[0,1]
@@ -57,6 +55,31 @@ export class UniverseExiter extends AGroupNodeModel2D {
             const timeTranslateFactor = t_anime * UniverseExiter.comicXShift;
             this.convertTransformToPRSA();
             this.prsa.position = V2(timeTranslateFactor, 0);
+            this.prsa.scale = timeScaleFactor;
+        }
+        return progress;
+    }
+
+    t_expand_start: number | null = null;
+    t_expand_length = 3;
+    // pass the time-step scaling factor (for waterline width to narrow down accordingly)
+    expandTheUniverse(t: number): number {
+        if (this.t_expand_start === null)
+            this.t_expand_start = t;
+        const progress = Math.max(0,Math.min(1,
+            (t - this.t_expand_start)/this.t_expand_length)
+        );  // clamped time ~[0,1]
+
+        if (progress >= 1) {
+            this.t_expand_start = null;
+        } else {
+            let t_anime =
+                6*progress**5 - 15*progress**4 + 10*progress**3; // smoother animation transition
+            t_anime = t_anime**1.3;   // ease-in
+            const timeScaleFactor = 1 + (1-t_anime) *
+                (UniverseExiter.cosmicContract - 1);
+            this.convertTransformToPRSA();
+            this.prsa.position = V2(1-t_anime, 0);
             this.prsa.scale = timeScaleFactor;
         }
         return progress;

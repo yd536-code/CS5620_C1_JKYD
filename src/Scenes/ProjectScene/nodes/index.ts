@@ -11,3 +11,5 @@ export * from "./SubmergedSection"
 export * from "./UniverseExiter"
 export * from "./CosmicMicrowaveBackground";
 export * from "./LabCat"
+export * from "./FireModel"
+export * from "./FireView"
