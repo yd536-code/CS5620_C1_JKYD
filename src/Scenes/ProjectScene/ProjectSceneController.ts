@@ -4,13 +4,14 @@ import {
     ANodeModel2D,
     AInteractionEvent,
     AKeyboardInteraction, ANodeView, ASVGLModel2D, ASVGLView,
-    Color, V2, GetAppState
+    Color, V2, GetAppState, AGroupNodeView
 } from "../../anigraph";
 import {ProjectSceneModel} from "./ProjectSceneModel";
 import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill, SeaBodyView, UniverseExiter, LabCat} from "./nodes";
 import {LightningModel, LightningView} from "./nodes";
 import {FireModel} from "./nodes/FireModel";
 import {FireView} from "./nodes/FireView";
+import {PolygonModel2D, PolygonView2D} from "../../anigraph/starter/nodes/polygon2D";
 
 /**
  * The scene controller. It does two things:
@@ -36,7 +37,7 @@ export class ProjectSceneController extends ASceneController2D{
      */
     async initScene(){
         await super.initScene();
-        this.setClearColor(Color.FromString("#dcf4ee"));
+        this.setClearColor(Color.FromString("#6a6a6a"));
     }
 
     timeUpdate() {
@@ -94,42 +95,43 @@ export class ProjectSceneController extends ASceneController2D{
     initInteractions(){
         super.initInteractions();
         this.createNewInteractionMode("Main", {
-                onKeyDown: (event: AInteractionEvent, interaction: AKeyboardInteraction)=>{
-                    this.model.onKeyDown(event.key);
-                },
-                onKeyUp: (event: AInteractionEvent, interaction: AKeyboardInteraction)=>{
-                    this.model.onKeyUp(event.key);
-                },
-                onClick: (event: AInteractionEvent)=>{
-                    // Clicking gives the canvas keyboard focus. Without focus, key presses never reach this mode.
-                    this.eventTarget.focus();
-                    // World coordinates of the click. This accounts for the camera's pan and zoom.
-                    const cursor = this.getWorldCoordinatesOfCursorEvent(event);
-                    if(cursor){
-                        this.model.onClick(cursor);
-                    }
-                },
-                // To handle dragging, forward the cursor to a model method in the same way, for example (first add an
-                // `onDrag(worldPoint: Vec2)` method to the scene model, like its `onClick`):
-                onDragStart: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
-                onDragMove: (event: AInteractionEvent, interaction: ADragInteraction)=>{
-                    // const cursor = this.getWorldCoordinatesOfCursorEvent(event);
-                    // if(cursor){ this.model.onDrag(cursor); }
-                },
-                onDragEnd: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
-
-                onMouseMove: (event: AInteractionEvent)=>{
-                    const mousePos = this.getWorldCoordinatesOfCursorEvent(event);
-                    if (mousePos) {
-                        const theLabCat = this.model.labCat;
-                        const labCatPos = V2(-5, 4);
-                        theLabCat.prsa.rotation = Math.atan2(
-                            mousePos.y - labCatPos.y, mousePos.x - labCatPos.x) +0.1;
-                        theLabCat.prsa.position = labCatPos;
-                    }
+            onKeyDown: (event: AInteractionEvent, interaction: AKeyboardInteraction) => {
+                this.model.onKeyDown(event.key);
+            },
+            onKeyUp: (event: AInteractionEvent, interaction: AKeyboardInteraction) => {
+                this.model.onKeyUp(event.key);
+            },
+            onClick: (event: AInteractionEvent) => {
+                // Clicking gives the canvas keyboard focus. Without focus, key presses never reach this mode.
+                this.eventTarget.focus();
+                // World coordinates of the click. This accounts for the camera's pan and zoom.
+                const cursor = this.getWorldCoordinatesOfCursorEvent(event);
+                if (cursor) {
+                    this.model.onClick(cursor);
                 }
-            }
-        );
+            },
+            // To handle dragging, forward the cursor to a model method in the same way, for example (first add an
+            // `onDrag(worldPoint: Vec2)` method to the scene model, like its `onClick`):
+            onDragStart: (event: AInteractionEvent, interaction: ADragInteraction) => {
+            },
+            onDragMove: (event: AInteractionEvent, interaction: ADragInteraction) => {
+                // const cursor = this.getWorldCoordinatesOfCursorEvent(event);
+                // if(cursor){ this.model.onDrag(cursor); }
+            },
+            onDragEnd: (event: AInteractionEvent, interaction: ADragInteraction) => {
+            },
+
+            onMouseMove: (event: AInteractionEvent) => {
+                const mousePos = this.getWorldCoordinatesOfCursorEvent(event);
+                if (mousePos) {
+                    const theLabCat = this.model.labCat;
+                    const labCatPos = V2(-5, 4);
+                    theLabCat.prsa.rotation = Math.atan2(
+                        mousePos.y - labCatPos.y, mousePos.x - labCatPos.x) + 0.1;
+                    theLabCat.prsa.position = labCatPos;
+                }
+            },
+        });
         this.setCurrentInteractionMode("Main");
     }
 }

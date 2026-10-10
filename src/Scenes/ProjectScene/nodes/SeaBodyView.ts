@@ -57,7 +57,7 @@ export class SeaBodyView extends AGLNodeView {
             const copyShift = this.model.getVertsForCopy(i);
             let curLinewidth = SeaModel.SeaLineWidth * Math.abs(copyShift.getElement(1,2));
             curLinewidth *= (this.model.lineWidth === SeaModel.SeaLineWidth)
-                ? 1 : 1.5*UniverseExiter.cosmicContract;
+                ? 1 : UniverseExiter.cosmicContract;
             this.copies[i].setLineWidth(curLinewidth);
         }
         console.log(...args);

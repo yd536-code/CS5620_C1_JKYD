@@ -9,7 +9,6 @@ export class SeaBodyFill extends LineModel2D {
     copyColors: Color[] = Array(this.nCopies).fill(this.seaColor);
 
     vanishPointPos: Vec2 = V2(0, 0); // default vanishing point @screen center
-    vSceneFOV = Math.PI/4;    // heuristic Vertical Field of View of Scene (45-deg)
 
     time: number = 0;   // time of current frame
     SamplePts: number[] = [];

@@ -63,15 +63,6 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.addNode(this.sea);
         this.addNode(this.seaBody);
         this.addNode(this.boat);
-        this.objInUniverse.push(this.sea);
-        this.objInUniverse.push(this.seaBody);
-        this.objInUniverse.push(this.boat);
-
-        this.theUniverse = new UniverseExiter();
-        for (let obj of this.objInUniverse) {
-            this.theUniverse.takeTheUniverse(obj);
-        }
-        this.addNode(this.theUniverse);
 
         // Copy the boat's position so the bolts bottom tip meets it.
         this.lightning.prsa.position = this.boat.prsa.position.clone();
@@ -82,6 +73,18 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.fire = new FireModel();
         this.fire.zValue = 0.02;
         this.addNode(this.fire);
+
+        this.objInUniverse.push(this.sea);
+        this.objInUniverse.push(this.seaBody);
+        this.objInUniverse.push(this.boat);
+        this.objInUniverse.push(this.lightning);
+        this.objInUniverse.push(this.fire);
+
+        this.theUniverse = new UniverseExiter();
+        for (let obj of this.objInUniverse) {
+            this.theUniverse.takeTheUniverse(obj);
+        }
+        this.addNode(this.theUniverse);
 
         this.labCat = new LabCat();
         this.addNode(this.labCat);
@@ -103,9 +106,8 @@ export class ProjectSceneModel extends ASceneModel2D{
             const progress = this.theUniverse.contractTheUniverse(t);
             if (progress >= 1)
                 this.contractSwitch = false;
-            this.seaBody.lineWidth -= 1e-12;
         } else if (this.expanSwitch) {
-            this.theUniverse.setTransformMat3(Mat3.Scale2D(1));
+            this.theUniverse.prsa.scale = 1;
         }
 
         t = this.timeWhenFreezed;
@@ -169,9 +171,8 @@ export class ProjectSceneModel extends ASceneModel2D{
             this.boat.signalGeometryUpdate();
             this.sea.signalGeometryUpdate();
             this.seaBody.signalGeometryUpdate();
+            this.lightning.signalGeometryUpdate();
         }
-
-        this.lightning.signalGeometryUpdate();
     }
 
     /** Key presses, forwarded from the scene controller */
@@ -186,7 +187,7 @@ export class ProjectSceneModel extends ASceneModel2D{
         if (key === "Escape") {
             this.expanSwitch = false;
             this.contractSwitch = true;
-            // this.seaBody.lineWidth = 0;
+            this.seaBody.lineWidth = 0;
             this.isFreezing = true;
         } else {
             this.contractSwitch = false;

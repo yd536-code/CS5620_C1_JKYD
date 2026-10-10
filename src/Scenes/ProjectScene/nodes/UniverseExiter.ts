@@ -55,6 +55,7 @@ export class UniverseExiter extends AGroupNodeModel2D {
             const timeScaleFactor = 1 + t_anime *
                 (UniverseExiter.cosmicContract - 1);
             const timeTranslateFactor = t_anime * UniverseExiter.comicXShift;
+            this.convertTransformToPRSA();
             this.prsa.position = V2(timeTranslateFactor, 0);
             this.prsa.scale = timeScaleFactor;
         }
