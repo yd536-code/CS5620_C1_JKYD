@@ -31,7 +31,7 @@ export class LabCat extends AGroupNodeModel2D{
         this.labCat = new ASVGLModel2D(LabCat.LabCatSVG);
         this.labCat.prsa.position = V2(0, 0);
         this.labCat.prsa.scale = 5;
-        this.labCat.zValue = 0;
+        this.labCat.zValue = -0.5;
         this.labCat.visible = true;
 
         this.addChild(this.labCat);
