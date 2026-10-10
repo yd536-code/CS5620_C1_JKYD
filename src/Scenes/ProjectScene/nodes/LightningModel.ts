@@ -14,8 +14,8 @@ export class LightningModel extends LineModel2D {
 
     //adding a slider for the lightning time
     static SetAppState(appState: AppState) {
-        appState.addSliderIfMissing("LightningDuration", 0.18, 0.01, 1, 0.005)
-        appState.addSliderIfMissing("LightningAfterimageTime", 1.3, 0, 2, 0.05);
+        appState.addSliderIfMissing("LightningDuration", 0.21, 0.01, 1, 0.005)
+        appState.addSliderIfMissing("LightningAfterimageTime", 0.5, 0, 2, 0.05);
     }
     /** Creates a white zigzag whose bottom tip is at the node's position. */
     constructor() {

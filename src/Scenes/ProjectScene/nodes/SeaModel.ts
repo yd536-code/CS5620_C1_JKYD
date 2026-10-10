@@ -6,6 +6,7 @@ import {
 } from "../../../anigraph";
 import {WaterSample} from "./WaterSurface";
 import {BoatModel} from "./BoatModel";
+import {AppState, GetAppState} from "../../../anigraph";
 
 @ASerializable("SeaModel")
 export class SeaModel extends LineModel2D {
@@ -18,6 +19,7 @@ export class SeaModel extends LineModel2D {
     static deGlobalWarmer = 1; // distance below horizontal center of the screen
 
     static waveSpeed = 3;
+    static scrollSpeed = 3;
     static WaveTopSpeed = 10;
     static WaveAccel = 4;
     static WaveAmplitude = 0.2;
@@ -42,6 +44,10 @@ export class SeaModel extends LineModel2D {
             this.verts.addVertex(V2(x,-SeaModel.deGlobalWarmer), this.SeaColor);
         }
         this.lineWidth = SeaModel.SeaLineWidth;
+    }
+
+    static SetAppState(appState: AppState) {
+        appState.addSliderIfMissing("WaterSpeedMultiplier", 1, 0, 3, 0.1);
     }
 
     private PressedKeys = new Set<string>();
@@ -76,8 +82,11 @@ export class SeaModel extends LineModel2D {
         SeaModel.waveSpeed = Math.max(-newTopSpeed,
             Math.min(newTopSpeed, SeaModel.waveSpeed)
         );  // clamp to top wave speed
+        //so we can change the accalaration speed with a slider
+        let multiplier = GetAppState().getState("WaterSpeedMultiplier");
 
-        SeaModel.waveTravel += SeaModel.waveSpeed * dt;
+        SeaModel.scrollSpeed = SeaModel.waveSpeed * multiplier;
+        SeaModel.waveTravel += SeaModel.scrollSpeed * dt;
         const waveAmp = SeaModel.WaveAmplitude; // wave amplitude (m)
         const lambda = SeaModel.Wavelength;     // wavelength (m)
         const dx2 = SeaModel.NSpacing**2;       // squared spatial resolution (Δx)²
@@ -142,7 +151,7 @@ export class SeaModel extends LineModel2D {
         const slope = (suf_vert.y - pre_vert.y)/SeaModel.NSpacing;
         const carrierYVelocity = (idx: number): number=> {
             const vert_x = this.xForIdxOf(idx);
-            return -SeaModel.WaveAmplitude * k * SeaModel.WaveTopSpeed
+            return -SeaModel.WaveAmplitude * k * SeaModel.scrollSpeed
                 * Math.cos(k * (vert_x - SeaModel.waveTravel));
         };
 

@@ -25,8 +25,9 @@ export class ProjectSceneModel extends ASceneModel2D{
         super.initAppState(appState);
         LightningModel.SetAppState(appState);
         FireModel.SetAppState(appState);
+        SeaModel.SetAppState(appState);
         //we will intreduce camera shake here
-        appState.addSliderIfMissing("CameraShake", 0.2, 0, 1, 0.01);
+        appState.addSliderIfMissing("CameraShake", 0.3, 0, 1, 0.01);
     }
 
     /**
@@ -112,16 +113,19 @@ export class ProjectSceneModel extends ASceneModel2D{
 
         t = this.timeWhenFreezed;
 
+        //updating the sea model and also giving the fire the speed so we can adjust the fire
+        let previousTravel = SeaModel.waveTravel;
         this.sea.timeUpdate(t, this.boat.Prop0toBound, this.boat.curThrottle);
         this.seaBody.timeUpdate(t);
+
+        this.fire.waterMovement = SeaModel.waveTravel - previousTravel;
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
         //fire where the boat is at
         let width = BoatModel.BoatTopWidth * 0.4;
         let height = BoatModel.BoatHeight / 2;
-        let boatTransform = this.boat.getWorldTransform();
-
+        let boatTransform = this.fire.getWorldTransform().getInverse().times(this.boat.getWorldTransform());
         this.fire.emitterPos = boatTransform.times(V2(-width, height));
         this.fire.emitterEnd = boatTransform.times(V2(width, height));
 
@@ -139,6 +143,7 @@ export class ProjectSceneModel extends ASceneModel2D{
             this.lightning.visible = true;
         } else if(this.lightning.afterimageActive) {
             this.lightning.visible = true;
+            this.lightning.prsa.position.x += this.fire.waterMovement;
         } else{
             this.lightning.visible = false;
         }
@@ -171,8 +176,9 @@ export class ProjectSceneModel extends ASceneModel2D{
             this.boat.signalGeometryUpdate();
             this.sea.signalGeometryUpdate();
             this.seaBody.signalGeometryUpdate();
-            this.lightning.signalGeometryUpdate();
         }
+
+        this.lightning.signalGeometryUpdate();
     }
 
     /** Key presses, forwarded from the scene controller */
