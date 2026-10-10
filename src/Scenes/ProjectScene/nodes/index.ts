@@ -5,6 +5,8 @@ export * from "./SeaBodyView"
 export * from "./WaterSurface"
 export * from "./BoatModel";
 export * from "./BoatView";
+export * from "./LightningModel";
+export * from "./LightningView";
 export * from "./SubmergedSection"
 export * from "./UniverseExiter"
 export * from "./CosmicMicrowaveBackground";

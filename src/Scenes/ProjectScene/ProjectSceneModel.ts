@@ -1,6 +1,8 @@
 import {ASceneModel2D} from "../../anigraph/starter/Scene2D";
-import {ANodeModel2D, AppState, Mat3, V2, Vec2} from "../../anigraph";
-import {BoatModel, SeaBodyFill, SeaModel, UniverseExiter, LabCat} from "./nodes";
+import {ANodeModel2D, AppState, Color, Mat3, V2, Vec2} from "../../anigraph";
+import {BoatModel, SeaBodyFill, SeaModel, UniverseExiter, LabCat, LightningModel} from "./nodes";
+import {FireModel} from "./nodes/FireModel";
+
 
 /**
  * The scene model. It creates the scene's nodes, passes time and input on to them, and is the place for logic that
@@ -21,7 +23,10 @@ export class ProjectSceneModel extends ASceneModel2D{
      */
     initAppState(appState: AppState){
         super.initAppState(appState);
-        // ProjectShapeModel.SetAppState(appState);
+        LightningModel.SetAppState(appState);
+        FireModel.SetAppState(appState);
+        //we will intreduce camera shake here
+        appState.addSliderIfMissing("CameraShake", 0.2, 0, 1, 0.01);
     }
 
     /**
@@ -30,6 +35,7 @@ export class ProjectSceneModel extends ASceneModel2D{
     async PreloadAssets(): Promise<void> {
         await super.PreloadAssets();
         await LabCat.PreloadAssets();
+        await FireModel.PreloadAssets();
     }
 
     /**
@@ -42,9 +48,13 @@ export class ProjectSceneModel extends ASceneModel2D{
     theUniverse!: UniverseExiter;
     objInUniverse: ANodeModel2D[] = [];
     labCat!:    LabCat;
+    lightning!:  LightningModel;
+    fire!:  FireModel;
+
     async initScene(){
         this.sea = new SeaModel();
         this.seaBody = new SeaBodyFill(this.sea);
+        this.lightning = new LightningModel();
 
         this.boat = new BoatModel();
         this.boat.prsa.position.y = this.sea.sampleWaterAtX(0).height + 0.15;
@@ -62,6 +72,16 @@ export class ProjectSceneModel extends ASceneModel2D{
             this.theUniverse.takeTheUniverse(obj);
         }
         this.addNode(this.theUniverse);
+
+        // Copy the boat's position so the bolts bottom tip meets it.
+        this.lightning.prsa.position = this.boat.prsa.position.clone();
+        //add lightning to the scene
+        this.addNode(this.lightning);
+
+        //adding the fire
+        this.fire = new FireModel();
+        this.fire.zValue = 0.02;
+        this.addNode(this.fire);
 
         this.labCat = new LabCat();
         this.addNode(this.labCat);
@@ -95,6 +115,63 @@ export class ProjectSceneModel extends ASceneModel2D{
 
         this.boat.sampleWater = x => this.sea.sampleWaterAtX(x);
         this.boat.timeUpdate(t);
+        //fire where the boat is at
+        let width = BoatModel.BoatTopWidth * 0.4;
+        let height = BoatModel.BoatHeight / 2;
+        let boatTransform = this.boat.getWorldTransform();
+
+        this.fire.emitterPos = boatTransform.times(V2(-width, height));
+        this.fire.emitterEnd = boatTransform.times(V2(width, height));
+
+        //lighting update and impact frame
+        let previousPhase = this.lightning.impactPhase;
+        this.lightning.timeUpdate(t);
+
+        //fire knows impact frame phase
+        this.fire.impactPhase = this.lightning.impactPhase;
+        this.fire.timeUpdate(t);
+
+        //show the bolt at the boat when the impact frame is happeneing
+        if(this.lightning.impactActive){
+            this.lightning.prsa.position = this.boat.prsa.position.clone();
+            this.lightning.visible = true;
+        } else if(this.lightning.afterimageActive) {
+            this.lightning.visible = true;
+        } else{
+            this.lightning.visible = false;
+        }
+
+        //the effect just ended:
+        // Only refresh colors when the phase changes.
+        if (previousPhase !== this.lightning.impactPhase) {
+            if (this.lightning.impactPhase === 1) {
+                this.boat.verts.FillColor(Color.Black());
+                this.sea.verts.FillColor(Color.Black());
+                this.seaBody.verts.FillColor(Color.Black());
+                //lightning color
+                this.lightning.verts.FillColor(Color.Black());
+            } else if (this.lightning.impactPhase === 2) {
+                this.boat.verts.FillColor(Color.White());
+                this.sea.verts.FillColor(Color.White());
+                this.seaBody.verts.FillColor(Color.White());
+                //lightning color
+                this.lightning.verts.FillColor(Color.White());
+            } else {
+                // Phase 0: restore the original colors.
+                this.boat.verts.FillColor(Color.FromString("#cf7049"));
+                this.sea.verts.FillColor(this.sea.SeaColor);
+                this.seaBody.verts.FillColor(this.seaBody.seaColor);
+                //the after image of the lightning
+                this.lightning.verts.FillColor(Color.FromString("#7050d0"));
+                this.lightning.verts.FillColor(Color.White());
+            }
+
+            this.boat.signalGeometryUpdate();
+            this.sea.signalGeometryUpdate();
+            this.seaBody.signalGeometryUpdate();
+        }
+
+        this.lightning.signalGeometryUpdate();
     }
 
     /** Key presses, forwarded from the scene controller */
@@ -102,6 +179,9 @@ export class ProjectSceneModel extends ASceneModel2D{
         if (!this.isFreezing) {
             this.boat.onKeyPress(key);
             this.sea.onKeyPress(key);
+            this.lightning.onKeyPress(key);
+            if (key.toLowerCase() == "r")
+                this.fire.startBurning();
         }
         if (key === "Escape") {
             this.expanSwitch = false;
