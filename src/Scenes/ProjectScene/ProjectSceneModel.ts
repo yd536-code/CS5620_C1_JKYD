@@ -93,11 +93,13 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.addNode(this.theUniverse);
 
         this.labCat = new LabCat();
+        this.labCat.zValue = -0.3;
         this.addNode(this.labCat);
     }
 
     static isFreezing: boolean = false;
     timeWhenFreezed: number | null = null;
+    previousFrameTime: number | null = null;
     contractSwitch: boolean = false;
     expandSwitch: boolean = false;
     /**
@@ -107,8 +109,17 @@ export class ProjectSceneModel extends ASceneModel2D{
     contractProgress: number = 0;
     expandProgress: number = 0;
     timeUpdate(t: number){
-        this.timeWhenFreezed = ProjectSceneModel.isFreezing
-            ? (this.timeWhenFreezed ??= t) : t;
+        if (this.previousFrameTime === null) {
+            this.previousFrameTime = t;
+        }
+        let dt = t - this.previousFrameTime;
+        this.previousFrameTime = t;
+
+        if (this.timeWhenFreezed === null) {
+            this.timeWhenFreezed = t;
+        } else if (!ProjectSceneModel.isFreezing) {
+            this.timeWhenFreezed += dt;
+        }
 
         if (this.contractSwitch) {
             this.contractProgress = this.theUniverse.contractTheUniverse(t);
