@@ -228,12 +228,12 @@ export class ProjectSceneModel extends ASceneModel2D{
             if (key.toLowerCase() == "r")
                 this.fire.startBurning();
         }
-        if (key === "Escape") {
+        if (key === "Escape" && !ProjectSceneModel.isFreezing) {
             this.expandSwitch = false;
             this.contractSwitch = true;
             this.seaBody.lineWidth = 0;
             ProjectSceneModel.isFreezing = true;
-        } else if (key === "Enter") {
+        } else if (key === "Enter" && ProjectSceneModel.isFreezing) {
             this.contractSwitch = false;
             this.expandSwitch = true;
             ProjectSceneModel.isFreezing = false;
