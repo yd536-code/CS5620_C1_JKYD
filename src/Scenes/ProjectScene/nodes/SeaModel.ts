@@ -10,9 +10,9 @@ import {BoatModel} from "./BoatModel";
 @ASerializable("SeaModel")
 export class SeaModel extends LineModel2D {
     static Density = 1000;  // water: kg/m3
-    static SeaDepth= 10;    // height (passed to SeaBodyFill to actually create seaBody as an area)
-    static SeaHalfWidth = SeaModel.SeaDepth; // width of seaBody shape (1:1 aspect ratio)
-    static SeaLineWidth = 0.002;
+    static SeaDepth= 14;  // imaginary depth into screen (passed to SeaBodyFill to actually create seaBody as an area)
+    static SeaHalfWidth = 19.9; // width of seaBody shape
+    static SeaLineWidth = 0.005;
     SeaColor = Color.FromString("#4587f8");
 
     static deGlobalWarmer = 1; // distance below horizontal center of the screen

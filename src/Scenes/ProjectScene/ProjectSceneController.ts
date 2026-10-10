@@ -1,8 +1,15 @@
 import {ASceneController2D} from "../../anigraph/starter/Scene2D";
-import {ADragInteraction, AInteractionEvent, AKeyboardInteraction, ANodeModel2D, Color} from "../../anigraph";
+import {
+    ADragInteraction,
+    AGroupNodeView,
+    AInteractionEvent,
+    AKeyboardInteraction, ANodeView, ASVGLModel2D, ASVGLView,
+    Color, V2
+} from "../../anigraph";
 import {ProjectSceneModel} from "./ProjectSceneModel";
-import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill} from "./nodes";
-import {SeaBodyView} from "./nodes/SeaBodyView";
+import {SeaModel, SeaView, BoatModel, BoatView, SeaBodyFill, SeaBodyView, UniverseExiter, LabCat} from "./nodes";
+import {PolygonModel2D, PolygonView2D} from "../../anigraph/starter/nodes/polygon2D";
+import {LayeringModel} from "../C1ExampleScenes/ShapesAndMaterials/nodes";
 
 /**
  * The scene controller. It does two things:
@@ -26,7 +33,7 @@ export class ProjectSceneController extends ASceneController2D{
      */
     async initScene(){
         await super.initScene();
-        this.setClearColor(Color.FromString("#dcf4ee"));
+        this.setClearColor(Color.FromString("#686464"));
     }
 
     /**
@@ -40,6 +47,10 @@ export class ProjectSceneController extends ASceneController2D{
         this.addModelViewSpec(SeaModel, SeaView);
         this.addModelViewSpec(BoatModel, BoatView);
         this.addModelViewSpec(SeaBodyFill, SeaBodyView);
+        this.addModelViewSpec(PolygonModel2D, PolygonView2D);
+        this.addModelViewSpec(UniverseExiter, AGroupNodeView);
+        this.addModelViewSpec(ASVGLModel2D, ASVGLView);
+        this.addModelViewSpec(LabCat, AGroupNodeView);
     }
 
     /**
@@ -73,35 +84,19 @@ export class ProjectSceneController extends ASceneController2D{
                     // if(cursor){ this.model.onDrag(cursor); }
                 },
                 onDragEnd: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
+
+                onMouseMove: (event: AInteractionEvent)=>{
+                    const mousePos = this.getWorldCoordinatesOfCursorEvent(event);
+                    if (mousePos) {
+                        const theLabCat = this.model.labCat;
+                        const labCatPos = V2(-5, 4);
+                        theLabCat.prsa.rotation = Math.atan2(
+                            mousePos.y - labCatPos.y, mousePos.x - labCatPos.x) +0.1;
+                        theLabCat.prsa.position = labCatPos;
+                    }
+                }
             }
         );
         this.setCurrentInteractionMode("Main");
-        this.createNewInteractionMode("MovingGameplay", {
-                onKeyDown: (event: AInteractionEvent, interaction: AKeyboardInteraction)=>{
-                    this.model.onKeyDown(event.key);
-                },
-                onKeyUp: (event: AInteractionEvent, interaction: AKeyboardInteraction)=>{
-                    this.model.onKeyUp(event.key);
-                },
-                onClick: (event: AInteractionEvent)=>{
-                    // Clicking gives the canvas keyboard focus. Without focus, key presses never reach this mode.
-                    this.eventTarget.focus();
-                    // World coordinates of the click. This accounts for the camera's pan and zoom.
-                    const cursor = this.getWorldCoordinatesOfCursorEvent(event);
-                    if(cursor){
-                        this.model.onClick(cursor);
-                    }
-                },
-                // To handle dragging, forward the cursor to a model method in the same way, for example (first add an
-                // `onDrag(worldPoint: Vec2)` method to the scene model, like its `onClick`):
-                onDragStart: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
-                onDragMove: (event: AInteractionEvent, interaction: ADragInteraction)=>{
-                    // const cursor = this.getWorldCoordinatesOfCursorEvent(event);
-                    // if(cursor){ this.model.onDrag(cursor); }
-                },
-                onDragEnd: (event: AInteractionEvent, interaction: ADragInteraction)=>{},
-            }
-        );
-        this.setCurrentInteractionMode("MovingGameplay");
     }
 }

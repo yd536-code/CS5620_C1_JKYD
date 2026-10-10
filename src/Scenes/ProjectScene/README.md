@@ -25,7 +25,11 @@ ProjectShapeModel        ← the behavior: spins, moves, recolors; owns its cont
 ```
 
 ## Contents:
-- [./nodes](nodes/README.md): The example node model and its custom view.
-- [./ProjectSceneModel.ts](ProjectSceneModel.ts): Thin scene model. Adds the shape's controls, loads its assets, creates it, and forwards time, keys and clicks to it.
-- [./ProjectSceneController.ts](ProjectSceneController.ts): Thin scene controller. Sets the background, registers the view spec, forwards keyboard and click input (in world coordinates), and runs the frame loop.
-- [./index.ts](index.ts): Exports the scene model and controller for `MainApp.tsx`.
+
+[//]: # (- [./nodes]&#40;nodes/README.md&#41;: The example node model and its custom view.)
+
+[//]: # (- [./ProjectSceneModel.ts]&#40;ProjectSceneModel.ts&#41;: Thin scene model. Adds the shape's controls, loads its assets, creates it, and forwards time, keys and clicks to it.)
+
+[//]: # (- [./ProjectSceneController.ts]&#40;ProjectSceneController.ts&#41;: Thin scene controller. Sets the background, registers the view spec, forwards keyboard and click input &#40;in world coordinates&#41;, and runs the frame loop.)
+
+[//]: # (- [./index.ts]&#40;index.ts&#41;: Exports the scene model and controller for `MainApp.tsx`.)

@@ -1,6 +1,7 @@
-import {AGLNodeView, ALabel, ALineGraphic, ALineMaterialModel, Color, Mat3} from "../../../anigraph";
+import {AGLNodeView, ALabel, ALineGraphic, ALineMaterialModel, Color, Mat3, V2} from "../../../anigraph";
 import {SeaBodyFill} from "./SeaBodyFill";
 import {SeaModel} from "./SeaModel";
+import {UniverseExiter} from "./UniverseExiter";
 
 @ALabel("SeaBodyView")
 export class SeaBodyView extends AGLNodeView {
@@ -38,6 +39,7 @@ export class SeaBodyView extends AGLNodeView {
             this.registerAndAddGraphic(copy);
             this.copies.push(copy);
         }
+
     }
     updateCopies() {
         for (let i = 0; i < this.model.nCopies; ++i) {
@@ -51,6 +53,14 @@ export class SeaBodyView extends AGLNodeView {
      */
     update(...args: any[]): void {
         // this.seaBody.setLineWidth(this.model.lineWidth);
+        for (let i = 0; i < this.model.nCopies; ++i) {
+            const copyShift = this.model.getVertsForCopy(i);
+            let curLinewidth = SeaModel.SeaLineWidth * Math.abs(copyShift.getElement(1,2));
+            curLinewidth *= (this.model.lineWidth === SeaModel.SeaLineWidth)
+                ? 1 : 1.5*UniverseExiter.cosmicContract;
+            this.copies[i].setLineWidth(curLinewidth);
+        }
+        console.log(...args);
         this.setTransform(this.model.transform);
     }
 }
