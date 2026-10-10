@@ -136,7 +136,7 @@ export class ProjectSceneModel extends ASceneModel2D{
         this.boat.timeUpdate(t);
 
         //fire where the boat is at
-        let width = BoatModel.BoatTopWidth;
+        let width = BoatModel.BoatTopWidth * 0.4;
         let height = BoatModel.BoatHeight / 2;
         let boatTransform = this.fire.getWorldTransform().getInverse().times(this.boat.getWorldTransform());
         this.fire.emitterPos = boatTransform.times(V2(-width, height));
