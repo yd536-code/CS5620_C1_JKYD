@@ -64,7 +64,7 @@ export class ProjectSceneController extends ASceneController2D{
         } else if (this.model.lightning.impactPhase === 2) {
             this.setClearColor(Color.Black());
         } else {
-            this.setClearColor(Color.FromString("#dcf4ee"));
+            this.setClearColor(Color.FromString("#5c5555"));
         }
     }
 
